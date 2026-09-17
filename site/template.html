@@ -56,14 +56,15 @@
 * { box-sizing: border-box; }
 body { background: var(--ground); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
 .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
-h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -.005em; }
+h1, h2, h3, h4 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -.005em; }
 h1 { font-size: clamp(2rem, 4.2vw, 2.9rem); font-weight: 700; line-height: 1.05; }
 h2 { font-size: 1.45rem; font-weight: 600; }
 h3 { font-size: 1.05rem; font-weight: 600; }
+h4 { font-size: .95rem; font-weight: 600; }
 p { margin: 0; }
 .mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .eyebrow { font-family: var(--f-display); font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.lede { max-width: 68ch; color: var(--muted); font-size: 1.02rem; }
+.lede { max-width: 72ch; color: var(--muted); font-size: 1.02rem; }
 .small { font-size: .84rem; color: var(--muted); }
 a { color: var(--accent); }
 button { font: inherit; color: inherit; }
@@ -72,14 +73,19 @@ button { font: inherit; color: inherit; }
 header.top { display: grid; gap: 14px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
 header.top .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; }
 
-.findings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-block: 22px 34px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.findings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-block: 22px 26px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
 .finding { padding: 16px 18px; display: grid; gap: 4px; align-content: start; }
 .finding + .finding { border-left: 1px solid var(--line); }
 .finding .big { font-family: var(--f-mono); font-size: 1.55rem; font-weight: 500; line-height: 1.2; }
 .finding .big small { font-size: .9rem; color: var(--muted); }
 .finding p { font-size: .86rem; color: var(--muted); }
 
-section { display: grid; gap: 16px; margin-top: 44px; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); font-size: .86rem; align-items: baseline; }
+.toc a { text-decoration: none; border-bottom: 1px solid transparent; }
+.toc a:hover { border-bottom-color: var(--accent); }
+.toc .sep { color: var(--faint); }
+
+section { display: grid; gap: 16px; margin-top: 48px; scroll-margin-top: 20px; }
 .section-head { display: grid; gap: 6px; }
 
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); }
@@ -106,7 +112,6 @@ section { display: grid; gap: 16px; margin-top: 44px; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
 svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
-.axis line, .axis path { stroke: var(--line); }
 .gridline { stroke: var(--line); stroke-dasharray: 2 3; }
 .band { fill: var(--accent-soft); }
 .p50 { fill: none; stroke: var(--accent); stroke-width: 1.6; }
@@ -132,6 +137,8 @@ svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
 .kv .v small { color: var(--muted); font-size: .8rem; }
 .callout { border-left: 3px solid var(--s-inconclusivo); background: var(--sunken); padding: 9px 12px; border-radius: 0 var(--r) var(--r) 0; font-size: .9rem; }
 .callout.veto { border-left-color: var(--s-veta); }
+.howto { border-left: 3px solid var(--accent); background: var(--sunken); padding: 11px 14px; border-radius: 0 var(--r) var(--r) 0; font-size: .88rem; display: grid; gap: 6px; max-width: 82ch; }
+.howto b { font-family: var(--f-display); }
 
 .gates { display: grid; gap: 0; border-top: 1px solid var(--line); }
 .gate { display: grid; grid-template-columns: 170px 104px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); align-items: baseline; font-size: .88rem; }
@@ -152,6 +159,7 @@ tr.best td:first-child { box-shadow: inset 3px 0 0 var(--ink); }
 .vplbar { width: 150px; }
 
 .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.two > * { min-width: 0; }
 .card { padding: 16px; display: grid; gap: 10px; align-content: start; }
 .heat { display: grid; gap: 3px; }
 .heat .cells { display: grid; grid-template-columns: 64px repeat(4, minmax(0, 1fr)); gap: 3px; font-family: var(--f-mono); font-size: .8rem; }
@@ -160,10 +168,45 @@ tr.best td:first-child { box-shadow: inset 3px 0 0 var(--ink); }
 .heat .collab { color: var(--muted); text-align: center; }
 
 .prose { display: grid; gap: 10px; max-width: 72ch; }
+.defs { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0 26px; }
+.def { padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.def b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); }
+.def span { color: var(--muted); display: block; }
+.pcts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.pct { padding: 13px 15px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); display: grid; gap: 5px; align-content: start; }
+.pct .sample { font-family: var(--f-mono); font-size: 1.05rem; color: var(--ink); }
+.pct .q { font-family: var(--f-display); font-weight: 600; font-size: .92rem; }
+.pct p { font-size: .85rem; color: var(--muted); }
+
+.steps { display: grid; gap: 0; counter-reset: step; }
+.step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.step::before { counter-increment: step; content: counter(step, decimal-leading-zero); font-family: var(--f-mono); font-size: .8rem; color: var(--faint); padding-top: 3px; }
+.step .body { display: grid; gap: 7px; max-width: 80ch; }
+.step .body > p { color: var(--muted); font-size: .92rem; }
+.step .why { font-size: .88rem; color: var(--ink); }
+.step .why b { font-family: var(--f-display); font-weight: 600; }
+.step .found { border-left: 3px solid var(--s-restringe); background: var(--sunken); padding: 8px 11px; border-radius: 0 4px 4px 0; font-size: .87rem; }
+
+.eqs { display: grid; gap: 0; }
+.eqrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.eqrow .left { display: grid; gap: 8px; align-content: start; }
+.eq { font-family: var(--f-mono); font-size: .9rem; background: var(--sunken); border-radius: 4px; padding: 10px 12px; overflow-x: auto; line-height: 1.75; }
+.eq em { color: var(--accent); font-style: normal; }
+.eqrow .right { display: grid; gap: 6px; font-size: .88rem; color: var(--muted); align-content: start; }
+.eqrow .right .src { font-size: .8rem; color: var(--faint); }
+.symbols { display: grid; gap: 3px; font-size: .85rem; color: var(--muted); }
+.symbols b { font-family: var(--f-mono); font-weight: 500; color: var(--ink); }
+
+.tag { display: inline-block; font-family: var(--f-display); font-weight: 600; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; white-space: nowrap; color: #fff; }
+.tag.medido { background: var(--s-ok); }
+.tag.literatura { background: var(--accent); }
+.tag.suposto { background: var(--s-restringe); }
+.tag.foradoescopo { background: var(--s-semdado); }
+
 .limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
 .limit { padding: 10px 0; border-bottom: 1px solid var(--line); display: grid; gap: 3px; font-size: .9rem; }
 .limit b { font-family: var(--f-display); font-weight: 600; font-size: .98rem; }
-.refs { font-size: .82rem; color: var(--muted); display: grid; gap: 4px; max-width: 90ch; }
+.refs { font-size: .82rem; color: var(--muted); display: grid; gap: 6px; max-width: 95ch; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
 
 @media (max-width: 900px) {
@@ -174,7 +217,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
   .finding:nth-child(n+3) { border-top: 1px solid var(--line); }
   .verdict { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .verdict .rec { grid-column: 1 / -1; }
-  .two, .limits { grid-template-columns: 1fr; }
+  .two, .limits, .eqrow { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) {
   .wrap { padding-inline: 16px; }
@@ -182,6 +225,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
   .finding + .finding { border-left: 0; border-top: 1px solid var(--line); }
   .gate { grid-template-columns: 1fr auto; }
   .gate .ev { grid-column: 1 / -1; }
+  .step { grid-template-columns: 1fr; gap: 4px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .marker circle, .pack-btn, .decision-tabs button { transition: transform .12s ease, border-color .12s ease; }
@@ -209,11 +253,209 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <div class="findings" id="findings"></div>
 
-  <section aria-labelledby="h-tool">
+  <nav class="toc" aria-label="Índice">
+    <span class="eyebrow">Índice</span>
+    <a href="#ler">Como ler os números</a><span class="sep">·</span>
+    <a href="#dataset">O dataset</a><span class="sep">·</span>
+    <a href="#metodo">Como a solução foi construída</a><span class="sep">·</span>
+    <a href="#equacoes">As equações</a><span class="sep">·</span>
+    <a href="#laudo-sec">Laudo por pack</a><span class="sep">·</span>
+    <a href="#frota">A frota inteira</a><span class="sep">·</span>
+    <a href="#laco">Fechando o laço</a><span class="sep">·</span>
+    <a href="#erro">Erro do modelo</a><span class="sep">·</span>
+    <a href="#premissas">Medido vs. suposto</a><span class="sep">·</span>
+    <a href="#limites">Limitações</a>
+  </nav>
+
+  <section id="ler" aria-labelledby="h-ler">
+    <div class="section-head">
+      <span class="eyebrow">Como ler os números</span>
+      <h2 id="h-ler">Quatro porcentagens diferentes na mesma página</h2>
+      <p class="small">Esta página usa “%” para quatro grandezas que respondem perguntas distintas. Vale ler esta parte antes do resto.</p>
+    </div>
+    <div class="pcts">
+      <div class="pct">
+        <span class="sample">SOH 95,7%</span>
+        <span class="q">Quão boa a bateria está</span>
+        <p>Capacidade que sobrou dividida pela capacidade de fábrica. 100% é nova; 80% já perdeu um quinto. É o eixo vertical do gráfico do pack.</p>
+      </div>
+      <div class="pct">
+        <span class="sample">1,7 p.p.</span>
+        <span class="q">Quanto o modelo erra</span>
+        <p><b>Pontos percentuais:</b> a diferença entre dois percentuais. Se a bateria está em 85% e o laudo disse 86,7%, o erro é 1,7 p.p. Escrever “1,7%” seria ambíguo.</p>
+      </div>
+      <div class="pct">
+        <span class="sample">78% · P(melhor) 51%</span>
+        <span class="q">Quão provável algo é</span>
+        <p>Frequência entre os milhares de cenários simulados, ou a fração de casos em que o intervalo acertou. Não tem relação com a saúde da bateria.</p>
+      </div>
+      <div class="pct">
+        <span class="sample">10% · ciclo 25</span>
+        <span class="q">Em que ponto da vida</span>
+        <p>Posição no tempo: se o pack durou 250 ciclos, o ciclo 25 é 10% da vida dele. É tempo, não saúde.</p>
+      </div>
+    </div>
+    <div class="howto">
+      <b>Regra de bolso</b>
+      <span>Se vier com “SOH”, é saúde · se vier “p.p.”, é erro · se começar com “P(” ou for “cobertura”, é probabilidade · se for “% da vida”, é tempo.</span>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">Siglas e termos</h3>
+      <div class="defs">
+        <div class="def"><b>SOH</b><span><i>State of Health</i>, estado de saúde: capacidade atual ÷ capacidade nominal.</span></div>
+        <div class="def"><b>SOC</b><span><i>State of Charge</i>, estado de carga: o quanto está cheia agora, como o marcador de combustível.</span></div>
+        <div class="def"><b>RUL / vida residual</b><span><i>Remaining Useful Life</i>: quanto ainda dá para usar antes do fim de vida.</span></div>
+        <div class="def"><b>Ciclo equivalente</b><span>Uma carga + descarga completa. Duzentas meias descargas contam como cem ciclos equivalentes.</span></div>
+        <div class="def"><b>P10 / P50 / P90</b><span>Percentis da previsão. P50 é a estimativa central; entre P10 e P90 estão 80% das possibilidades.</span></div>
+        <div class="def"><b>MAE</b><span><i>Mean Absolute Error</i>: de quanto o modelo erra em média, sem distinguir para mais ou para menos.</span></div>
+        <div class="def"><b>Cobertura</b><span>Fração das medições reais que caíram dentro do intervalo P10–P90 prometido. Mede se a incerteza declarada é honesta.</span></div>
+        <div class="def"><b>VPL</b><span>Valor Presente Líquido: tudo o que entra menos tudo o que sai, trazido para hoje pela taxa de desconto. Positivo = vale a pena.</span></div>
+        <div class="def"><b>Taxa C</b><span>Velocidade de descarga. 1 C esvazia a bateria em 1 h; 0,3 C em ~3 h; 6 C em 10 min.</span></div>
+        <div class="def"><b>CC-CV</b><span>Carga em duas fases: corrente constante até a tensão limite, depois tensão constante com a corrente caindo.</span></div>
+        <div class="def"><b>BMS</b><span><i>Battery Management System</i>: a eletrônica que já mede tensão, corrente e temperatura da bateria em campo.</span></div>
+        <div class="def"><b>EIS</b><span><i>Electrochemical Impedance Spectroscopy</i>: mede a impedância em várias frequências. Preciso, mas exige equipamento dedicado — e não existe neste dataset.</span></div>
+        <div class="def"><b>Resistência interna (mΩ)</b><span>O “atrito elétrico” da bateria. Cresce com o envelhecimento e limita a potência. 1 mΩ é um milésimo de ohm.</span></div>
+        <div class="def"><b>Fade</b><span>Perda gradual de capacidade causada pelo uso.</span></div>
+        <div class="def"><b>Joelho (knee)</b><span>Ponto em que a perda de capacidade acelera de repente.</span></div>
+        <div class="def"><b>Gate</b><span>Filtro de segurança: antes de qualquer conta de dinheiro, elimina destinos que aquela bateria não pode receber.</span></div>
+        <div class="def"><b>Ah e kWh</b><span>Ampère-hora mede carga; quilowatt-hora mede energia (≈ Ah × tensão). Uma célula daqui tem 2,5 Ah ≈ 9 Wh.</span></div>
+        <div class="def"><b>Uso escalonado (2ª vida)</b><span>Reaproveitar a bateria em uma aplicação menos exigente depois que ela sai da original.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dataset" aria-labelledby="h-ds">
+    <div class="section-head">
+      <span class="eyebrow">O dataset</span>
+      <h2 id="h-ds">De onde vêm os dados</h2>
+      <p class="lede"><b>Randomized &amp; Recommissioned Battery Dataset</b> — “An accelerated Life Testing Dataset for Lithium-Ion Batteries with Constant and Variable Loading Conditions”, de Kajetan Fricke, Renato Nascimento e Felipe Viana (NASA Prognostics Center of Excellence e Universidade da Flórida Central, 2023). Dado público, sem restrição de uso comercial.</p>
+    </div>
+    <div class="two">
+      <div class="prose">
+        <p><b>Por que este e não outro.</b> Entre cinco datasets públicos avaliados, é o único que contém o <b>ciclo de decisão inteiro</b>, inclusive o “depois”: quando um pack morre, as células que sobreviveram são remontadas em um pack de <b>segunda vida</b>, com registro de quais packs as originaram. Isso permite comparar a previsão feita na aposentadoria com o que a bateria realmente entregou depois. É também o único em nível de <b>pack</b> — o que um BMS enxerga, e não célula isolada — e traz <b>cargas aleatórias</b>, mais parecidas com uso real do que a ciclagem perfeitamente regular de laboratório.</p>
+        <p><b>O que é um “pack” aqui.</b> Duas células cilíndricas 18650 em série: 2,5 Ah nominais, cerca de 7,4 V, ~18 Wh. É um pack de brinquedo diante de um automotivo (~60 kWh), e isso está entre as limitações.</p>
+        <p><b>Como o ensaio funciona.</b> Cada pack repete, até morrer: uma <b>missão de descarga</b> (corrente constante entre 5 e 19 A, ou corrente sorteada que muda a cada 40–80 s), <b>10 min de repouso</b>, <b>recarga CC-CV</b> até 8,63 V e outro repouso. A cada 30–60 h entra uma <b>descarga de referência a 2,5 A</b>: é ela que mede a capacidade de verdade e serve de gabarito.</p>
+        <p><b>Três famílias de packs:</b> corrente constante a vida toda; corrente que muda no meio da vida (“recomissionados”, imitando troca de aplicação); e os remontados de segunda vida. Os packs duram de 29 a 865 ciclos e vão de ~99% a ~62% de SOH.</p>
+      </div>
+      <div class="panel card">
+        <h3>Um ciclo, e onde cada medida entra</h3>
+        <div id="cycle-diagram"></div>
+        <p class="small">Esquema ilustrativo da tensão do pack ao longo de um ciclo (fora de escala). Em <b style="color:var(--accent)">azul</b>, o que o <b>laudo rápido</b> usa: o pulso inicial, a janela parcial de carga e o repouso pós-carga. Em cinza, o que só a telemetria de uso fornece.</p>
+      </div>
+    </div>
+    <div class="two">
+      <div class="panel card table-wrap">
+        <h3>O que vem em cada arquivo</h3>
+        <table>
+          <thead><tr><th>coluna do CSV</th><th>o que é</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">time</td><td>segundos desde o início da vida do pack (amostragem ~1 Hz)</td></tr>
+            <tr><td class="mono">mode</td><td>−1 descarregando · 0 em repouso · 1 carregando</td></tr>
+            <tr><td class="mono">voltage_charger</td><td>tensão do pack, medida continuamente</td></tr>
+            <tr><td class="mono">temperature_battery</td><td>temperatura na superfície da célula (termopar)</td></tr>
+            <tr><td class="mono">voltage_load / current_load</td><td>tensão e corrente na placa de carga, só durante a descarga</td></tr>
+            <tr><td class="mono">mission_type</td><td>0 = descarga de referência a 2,5 A · 1 = missão comum</td></tr>
+            <tr><td class="mono">temperature_mosfet / _resistor</td><td>temperaturas da bancada (segurança do equipamento, não da bateria)</td></tr>
+          </tbody>
+        </table>
+        <p class="small">3,2 GB de CSV viram uma tabela de <span id="ds-cycles" class="mono">—</span> ciclos com 51 colunas derivadas, das quais <span id="ds-refs" class="mono">—</span> descargas de referência servem de gabarito.</p>
+      </div>
+      <div class="panel card">
+        <h3>O que o dataset não tem</h3>
+        <div class="defs" style="grid-template-columns:1fr">
+          <div class="def"><b>tensão por célula</b><span>só o par em série é medido: se uma célula está muito pior que a outra, o dado não conta qual.</span></div>
+          <div class="def"><b>EIS, gás, pressão, deformação</b><span>os sinais que a literatura aponta como melhores para antecipar fuga térmica não existem aqui.</span></div>
+          <div class="def"><b>envelhecimento de prateleira</b><span>os packs nunca ficam meses parados, então o efeito do tempo (e não do uso) entra como premissa.</span></div>
+          <div class="def"><b>custo, frete, preço, regulação</b><span>nada disso é dado de laboratório — é a metade econômica do motor, e entra declarada como premissa.</span></div>
+          <div class="def"><b>outras químicas e formatos</b><span>é íon-lítio 18650: não há níquel-hidreto, que é o insumo imediato da Toyota no Brasil, nem pack automotivo.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="howto">
+      <b>A limitação mais importante: é um ensaio acelerado</b>
+      <span>16 A em uma célula de 2,5 Ah equivalem a <b>6,4 C</b> — esvaziar a bateria em ~9 minutos — e as missões chegam a ~100 °C na superfície. Nenhum destino real trabalha assim (0,2 a 1 C). Portanto o <b>estado</b> medido aqui é sólido, mas toda <b>vida projetada</b> para um destino real é extrapolação. É por isso que a página mostra dois cenários de vida em vez de um número só.</span>
+    </div>
+  </section>
+
+  <section id="metodo" aria-labelledby="h-met">
+    <div class="section-head">
+      <span class="eyebrow">Desenvolvimento</span>
+      <h2 id="h-met">Como a solução foi construída, e por que cada escolha</h2>
+      <p class="lede">A ordem abaixo é a ordem real do trabalho. Em quatro pontos os dados contrariaram o desenho inicial e obrigaram a mudá-lo; esses pontos estão destacados.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="body">
+        <h4>Transformar 3,2 GB de sinal em uma tabela de decisões</h4>
+        <p>Cada CSV é uma série temporal contínua de toda a vida do pack. O código percorre o arquivo, identifica os trechos (descarga, repouso, carga) e resume <b>cada ciclo em uma linha</b>.</p>
+        <p class="why"><b>Por quê:</b> a decisão do BLOOM é tomada por bateria, em um instante — não por amostra de 1 Hz. Resumir por ciclo põe dado e decisão na mesma unidade, e derruba o custo computacional de 3,2 GB para 2,3 MB.</p>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Escolher o gabarito, ou seja, o que chamamos de “verdade”</h4>
+        <p>O SOH verdadeiro vem só das <b>descargas de referência a 2,5 A</b>. Entre duas referências o valor é interpolado pelo Ah acumulado; fora do intervalo medido <b>não</b> extrapolamos — essas linhas ficam fora do treino.</p>
+        <p class="why"><b>Por quê:</b> a capacidade de uma missão comum depende da corrente usada (quanto mais forte a descarga, menos capacidade aparece). Usá-la como gabarito misturaria “bateria mais velha” com “descarga mais agressiva”. A referência é padronizada, então é comparável ao longo da vida.</p>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Desenhar um “laudo rápido” que caiba em ~20 minutos de bancada</h4>
+        <p>Três medidas, nenhuma exigindo descarregar o pack: o <b>pulso inicial</b> de descarga (queda de tensão em 2, 10, 60 e 120 s, que dá a resistência aparente), a <b>janela parcial de carga</b> (tempo para subir de 7,6 a 8,4 V) e o <b>repouso pós-carga</b> (quanto a tensão cai em 9 min). Mais o aquecimento nos 2 primeiros minutos.</p>
+        <p class="why"><b>Por que essas:</b> são as que a literatura aponta como substitutas da ciclagem completa — trecho parcial de carga (Liu et al. 2024), relaxação de tensão em nível de pack (Kumar et al. 2023) e resistência por pulso (Wei et al. 2022). E são as que existem neste dataset sem equipamento extra.</p>
+        <p class="why"><b>Por que quatro conjuntos de features:</b> para <b>medir o preço de não ciclar</b>. Comparamos idade pura (o chute), laudo rápido, telemetria de uso e ciclo completo. Sem essa comparação, “erro de 1,7 p.p.” não significaria nada.</p>
+        <div class="found"><b>Cuidado que virou regra:</b> a capacidade da própria missão tem correlação de 0,996 com o SOH — mas obtê-la exige descarregar o pack até o corte, que é exatamente o ensaio que queremos evitar. Por isso ela fica fora do laudo rápido e aparece apenas como “limite superior”.</div>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Escolher o modelo: regressão quantílica com calibração conformal</h4>
+        <p>Três modelos de <i>gradient boosting</i> preveem P10, P50 e P90. Depois, uma etapa <b>conformal</b> alarga o intervalo até que ele cubra 80% dos casos em packs que o modelo nunca viu.</p>
+        <p class="why"><b>Por que não uma rede neural profunda:</b> o dataset é pequeno onde importa — 26 packs. Uma rede profunda tem espaço para memorizar o pack em vez de generalizar. E o produto aqui não é o número, é o <b>intervalo</b>. Wei et al. (2022) atacam o mesmo problema com rede mais correção por cadeia de Markov sobre as faixas de erro; a calibração conformal cumpre o mesmo papel com garantia estatística e menos peças móveis.</p>
+        <p class="why"><b>Por que o intervalo é o produto:</b> é dele que saem o preço da garantia e a decisão de ensaiar ou não (equações 6, 10 e 11).</p>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Escolher a validação: deixar packs inteiros de fora</h4>
+        <p>Toda métrica desta página vem de <b>validação por grupos</b>: o pack avaliado nunca participou do treino do modelo que o avalia.</p>
+        <p class="why"><b>Por quê:</b> dois ciclos vizinhos do mesmo pack são quase idênticos. Sortear ciclos entre treino e teste deixaria o modelo “reconhecer o pack” e produziria um erro artificialmente baixo. Deixar o pack fora imita o que acontece de verdade: chega uma bateria que ninguém viu antes.</p>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Quatro achados que mudaram o desenho</h4>
+        <div class="found"><b>O termopar não é comparável entre packs.</b> Diferenças de posicionamento geram deslocamentos de até ±11 °C. Um limite térmico absoluto mediria a montagem do sensor, não a bateria. <b>Consequência:</b> o gate térmico passou a comparar cada pack com a <b>própria linha de base</b> de início de vida.</div>
+        <div class="found"><b>A morte é abrupta.</b> Os packs falham muitas vezes com 80–90% de SOH, e nos 10 ciclos anteriores nem a capacidade nem a resistência avisam. <b>Consequência:</b> a vida residual sai com intervalo largo, e o protótipo passa a defender que sensores extras (gás, deformação) valem justamente onde o sinal elétrico silencia.</div>
+        <div class="found"><b>Pack remontado engana o modelo.</b> Nos três packs de segunda vida o SOH é <b>superestimado</b> (erro de 5,1 p.p. e cobertura de 14%): a capacidade do pack segue a <b>pior</b> célula, enquanto resistência e aquecimento refletem a <b>média</b> das duas — o “efeito barril” descrito por Wang et al. (2023). <b>Consequência:</b> criamos o gate de procedência (G6), o detector de novidade (G5) e a âncora de recomissão — um único ensaio de referência derruba o erro para 3,0 p.p.</div>
+        <div class="found"><b>Comparar preço com preço.</b> A primeira versão da conta avaliava a bateria de segunda vida pelo preço de uma célula nova, mas cobrava dela o custo de um sistema completo (gabinete, eletrônica, integração) — e todo destino dava prejuízo. <b>Consequência:</b> cada destino passou a ser comparado com o <b>produto novo equivalente</b> daquele mercado.</div>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Ordenar a decisão: segurança primeiro, dinheiro depois</h4>
+        <p>Seis gates rodam antes de qualquer conta. Alguns <b>vetam</b> todo reuso; outros só <b>restringem</b> destinos (resistência alta elimina aplicações de potência mas tolera energia); e dois podem declarar o laudo <b>inconclusivo</b>.</p>
+        <p class="why"><b>Por que nessa ordem:</b> Lai et al. (2021, §3.2.3) mostram que a triagem de baterias aposentadas deve começar por uma classificação de segurança unidimensional e só depois ordenar por desempenho — e que o critério de ordenação muda conforme o destino: capacidade e vida para energia, resistência e vida para potência (Guan et al. 2025, §4.2.2). Um veto que pudesse ser “comprado” por um VPL alto não seria um veto.</p>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Comparar destinos por valor, não por nota</h4>
+        <p>Para cada destino sobrevivente o roteador sorteia milhares de cenários de SOH e de vida e calcula o <b>VPL</b> de cada um. Reporta a média, o intervalo e em quantos cenários aquele destino ganhou.</p>
+        <p class="why"><b>Por que não uma nota de 0 a 100:</b> uma nota esconde a conta e não se soma a nada. O VPL obriga a explicitar receita, custo, vida e risco — e permite dizer <b>por que</b> um destino perdeu. A estrutura da conta segue Kumar et al. (2023), que modelam a circularidade como otimização de valor do ecossistema, com frete e armazenagem explícitos.</p>
+        <p class="why"><b>Por que dois cenários de vida:</b> porque o ensaio é acelerado. O cenário <b>só fade</b> limita a vida pela perda de capacidade extrapolada; o <b>conservador</b> também carrega a falha abrupta observada. O laço fechado mostra que a vida real cai entre os dois na maioria dos pares — então mostrar os dois é mais honesto que escolher um.</p>
+      </div></div>
+      <div class="step"><div class="body">
+        <h4>Transformar incerteza em preço, e saber quando vale ensaiar</h4>
+        <p>Dois produtos saem do intervalo de SOH: o <b>prêmio de garantia</b> (quanto custa segurar o risco de a bateria morrer antes do fim da garantia) e o <b>valor da informação</b> (quanto se ganharia decidindo com dado perfeito). Se o valor da informação supera o custo de um ensaio de referência, o laudo manda ensaiar antes de decidir.</p>
+        <p class="why"><b>Por quê:</b> a Relectrify travou em 4 anos de garantia contra 6–10 de sistemas novos porque não sabia precificar o risco. Com incerteza quantificada, a conversa deixa de ser “aceite uma bateria pior” e passa a ser “aceite uma bateria pior com um seguro que eu sei calcular”.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section id="equacoes" aria-labelledby="h-eq">
+    <div class="section-head">
+      <span class="eyebrow">As contas</span>
+      <h2 id="h-eq">Todas as equações usadas, com fonte</h2>
+      <p class="small">Nada aqui é caixa-preta: estas onze contas, mais os três modelos de quantil, produzem tudo o que a página mostra.</p>
+    </div>
+    <div class="eqs" id="eqs"></div>
+  </section>
+
+  <section id="laudo-sec" aria-labelledby="h-tool">
     <div class="section-head">
       <span class="eyebrow">Laudo por pack</span>
       <h2 id="h-tool">Escolha um pack e um momento da vida</h2>
-      <p class="small">A faixa azul é o SOH previsto pelo laudo rápido (P10–P90, mediana dos últimos 5 ciclos, como no laudo), sempre fora da amostra: o pack mostrado nunca participou do treino. Os pontos são as descargas de referência. Cada marcador é uma decisão do roteador.</p>
+    </div>
+    <div class="howto">
+      <b>Como ler o gráfico</b>
+      <span><b>Faixa azul</b> = intervalo P10–P90 do SOH previsto pelo laudo rápido (mediana dos últimos 5 ciclos, como no laudo), sempre fora da amostra. <b>Pontos escuros</b> = SOH medido nas descargas de referência: é o gabarito, então ponto dentro da faixa significa acerto e ponto fora significa erro, deixado à vista. <b>Bolinhas coloridas</b> = decisões do roteador, coloridas pelo destino recomendado; clique nelas, ou nas pílulas abaixo, para trocar o laudo.</span>
+      <span>Compare o pack <b>23</b> (primeira vida) com o <b>54</b> (remontado): no segundo a faixa é muito mais larga — o modelo está avisando que não confia.</span>
     </div>
     <div class="tool">
       <nav class="rail" id="rail" aria-label="Packs"></nav>
@@ -229,12 +471,17 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
           <div id="chart"></div>
           <div class="decision-tabs" id="tabs" role="group" aria-label="Momento da decisão"></div>
         </div>
+        <div class="howto">
+          <b>Como ler o laudo</b>
+          <span><b>Gates:</b> <span class="pill ok">ok</span> passou · <span class="pill restringe">restringe</span> elimina alguns destinos · <span class="pill veta">veta</span> proíbe todo reuso · <span class="pill inconclusivo">inconclusivo</span> o laudo não confia em si mesmo e pede ensaio · <span class="pill semdado">sem dado</span> falta histórico. Cada linha mostra o valor medido <b>e</b> o limite, para a decisão poder ser contestada.</span>
+          <span><b>Destinos:</b> valores para um pack de referência de <span id="howto-kwh" class="mono">10</span> kWh. VPL positivo dá lucro, negativo dá prejuízo; a barrinha mostra a média (retângulo), o intervalo dos cenários (traço) e o zero (linha vertical). Linhas em cinza foram eliminadas, com o motivo escrito embaixo.</span>
+        </div>
         <article class="panel laudo" id="laudo" aria-live="polite"></article>
       </div>
     </div>
   </section>
 
-  <section aria-labelledby="h-fleet">
+  <section id="frota" aria-labelledby="h-fleet">
     <div class="section-head">
       <span class="eyebrow">A frota inteira</span>
       <h2 id="h-fleet">Para onde vai cada bateria, ao longo da vida</h2>
@@ -243,37 +490,41 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     <div class="two">
       <div class="panel card">
         <h3>Recomendação por fase da vida</h3>
+        <p class="small">Cada barra é uma fase da vida dos packs. As cores mostram <b>que fração das decisões daquela fase</b> foi para cada destino — não é saúde nem dinheiro, é contagem de decisões.</p>
         <div id="fleet-chart"></div>
         <div class="legend" id="dest-legend"></div>
+        <p class="small">A leitura que interessa: quanto mais tarde a decisão, mais cinza. <b>O valor está em decidir cedo.</b></p>
       </div>
       <div class="panel card">
         <h3>Reuso ou reciclagem? Sensibilidade a frete e preço do novo</h3>
-        <p class="small">Fração dos 26 packs enviada a algum reuso. Linhas: frete de carga perigosa (R$/kWh). Colunas: preço dos produtos novos relativo à premissa (1,0).</p>
+        <p class="small">Cada célula é a <b>fração dos 26 packs</b> que iria para algum reuso naquele cenário. Linhas: frete de carga perigosa (R$/kWh). Colunas: preço dos produtos novos relativo à premissa (0,6 = bateria nova 40% mais barata; 1,2 = 20% mais cara). Verde escuro = muito reuso; quase branco = a reciclagem domina.</p>
         <div class="two" id="heatmaps"></div>
+        <p class="small">Aos 30% da vida o reuso é a regra; na aposentadoria, a exceção. E bateria nova mais barata encolhe a janela — o efeito que Guan et al. (2025) apontam como ameaça ao uso escalonado.</p>
       </div>
     </div>
   </section>
 
-  <section aria-labelledby="h-loop">
+  <section id="laco" aria-labelledby="h-loop">
     <div class="section-head">
       <span class="eyebrow">Fechando o laço</span>
       <h2 id="h-loop">O que as células aposentadas entregaram na segunda vida</h2>
-      <p class="small">No dataset, packs de primeira vida rodaram até falhar e as células sobreviventes foram remontadas. Comparamos a vida prevista no momento da aposentadoria com a vida real do pack remontado.</p>
+      <p class="small">Aqui não há porcentagem: o eixo é <b>ciclos equivalentes</b>. Para cada par “pack de origem → pack remontado”, o que cada cenário previa no momento da aposentadoria e o que a bateria realmente entregou depois.</p>
     </div>
     <div class="two">
       <div class="panel card"><div id="loop-chart"></div><div class="legend" id="loop-legend"></div></div>
       <div class="prose">
         <p>Nenhum cenário acerta sozinho. O <b>só fade</b> erra entre metade e duas vezes e meia a vida real; o <b>conservador</b>, que também carrega a falha abrupta do ensaio acelerado, costuma subestimar. Na maioria dos pares o real fica entre os dois — por isso o laudo mostra os dois cenários em vez de fingir um número.</p>
         <p>São seis pares origem → pack remontado. Suficiente para ver o laço funcionar; insuficiente para calibrar. É exatamente o dado que a fase F2 do projeto precisa gerar.</p>
+        <p class="small">Observação honesta: os packs de origem chegaram ao fim <b>falhando</b>, e só as células sobreviventes seguiram adiante. A comparação mede a vida das sobreviventes, não a do pack inteiro.</p>
       </div>
     </div>
   </section>
 
-  <section aria-labelledby="h-health">
+  <section id="erro" aria-labelledby="h-health">
     <div class="section-head">
       <span class="eyebrow">Health Intelligence</span>
       <h2 id="h-health">Quanto custa não ciclar: erro do SOH fora da amostra</h2>
-      <p class="small">Validação deixando packs inteiros de fora. Erro em pontos percentuais de SOH; o intervalo P10–P90 promete cobrir 80% dos casos.</p>
+      <p class="small"><b>MAE</b> = erro médio · <b>P90 |erro|</b> = erro nos 10% piores casos · <b>cobertura</b> = fração das medições dentro do intervalo prometido (alvo 80%) · <b>largura</b> = tamanho médio do intervalo. Tudo em pontos percentuais de SOH.</p>
     </div>
     <div class="two">
       <div class="panel card table-wrap" id="bench"></div>
@@ -281,37 +532,61 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     </div>
   </section>
 
-  <section aria-labelledby="h-prem">
+  <section id="premissas" aria-labelledby="h-prem">
     <div class="section-head">
-      <span class="eyebrow">Premissas</span>
-      <h2 id="h-prem">A conta do roteador, com os números à vista</h2>
-      <p class="small">Nenhum dataset público traz frete, preço de material ou regra brasileira. Os valores abaixo são ilustrativos e editáveis em <span class="mono">bloom/config.py</span>; trocar qualquer um muda a recomendação — e o laudo mostra onde.</p>
+      <span class="eyebrow">Transparência</span>
+      <h2 id="h-prem">O que é medido, o que vem da literatura e o que é suposto</h2>
+      <p class="lede">Metade deste motor é medida nos dados; a outra metade é economia — e <b>nenhum dataset público traz frete, preço de material ou regra brasileira</b>. Em vez de esconder isso, cada número abaixo vem etiquetado. Trocar qualquer um muda a recomendação, e a página mostra onde.</p>
     </div>
-    <div class="panel card table-wrap" id="dest-table"></div>
-    <div class="panel card" id="eco"></div>
+    <div class="legend" style="gap:10px 16px">
+      <span><span class="tag medido">medido</span> sai do dataset</span>
+      <span><span class="tag literatura">literatura</span> número publicado, adaptado</span>
+      <span><span class="tag suposto">suposto</span> ordem de grandeza plausível, sem cotação</span>
+      <span><span class="tag foradoescopo">fora do escopo</span> não modelado</span>
+    </div>
+    <div class="panel card table-wrap" id="prem-table"></div>
+    <div class="panel card">
+      <h3>Requisitos e economia de cada destino</h3>
+      <p class="small">As quatro primeiras colunas numéricas são regras de elegibilidade — é de lá que saem os “eliminado por SOH” e “eliminado por resistência”. As demais alimentam o VPL, e todos os preços são <span class="tag suposto">suposto</span>.</p>
+      <div class="table-wrap" id="dest-table"></div>
+    </div>
   </section>
 
-  <section aria-labelledby="h-lim">
+  <section id="limites" aria-labelledby="h-lim">
     <div class="section-head">
       <span class="eyebrow">Antes da banca</span>
-      <h2 id="h-lim">Limitações deste protótipo</h2>
+      <h2 id="h-lim">Limitações e abstrações deste protótipo</h2>
+      <p class="small">Dito de outro modo: onde este protótipo <b>não</b> pode ser usado como prova.</p>
     </div>
     <div class="limits">
-      <div class="limit"><b>Íon-lítio 18650, não Ni-MH</b><span>O insumo imediato da Toyota no Brasil é Ni-MH. O pipeline precisa ser repetido em packs Ni-MH do HV Recovery Center.</span></div>
-      <div class="limit"><b>Pack de 2 células, não pack automotivo</b><span>Todos os artigos do acervo também validam em célula. Falta o degrau módulo/pack com BMS real.</span></div>
-      <div class="limit"><b>Ensaio acelerado a 4–8 C, missões perto de 100 °C</b><span>A vida em destinos de 0,2–1 C é extrapolação declarada; os dois cenários delimitam o intervalo.</span></div>
-      <div class="limit"><b>Falha abrupta sem precursor elétrico</b><span>Nos ciclos antes da falha, capacidade e resistência não avisam. Sensores de gás e deformação (hardware H1/H2) têm valor justamente aqui.</span></div>
-      <div class="limit"><b>Só três packs remontados</b><span>A âncora de recomissão e seu intervalo foram calibrados com dois packs de cada vez.</span></div>
-      <div class="limit"><b>Sem EIS e sem sensor de gás</b><span>Os gates térmico e de autodescarga são proxies. Bancada com EIS rápido (~6 min, Wang et al. 2023) é o próximo passo.</span></div>
-      <div class="limit"><b>Economia com premissas ilustrativas</b><span>Preços, frete e regras (REN 1.161/2026, UL 1974) precisam de cotações e leitura reais.</span></div>
-      <div class="limit"><b>Offset de termopar por pack</b><span>Limite térmico absoluto não serve neste dataset; o gate compara cada pack com a própria linha de base.</span></div>
+      <div class="limit"><b>Íon-lítio 18650, não Ni-MH</b><span>O insumo imediato da Toyota no Brasil é níquel-hidreto, com química e assinatura de envelhecimento diferentes. O pipeline precisa ser repetido lá; nada garante que as mesmas features funcionem.</span></div>
+      <div class="limit"><b>Pack de 2 células (~18 Wh), não pack automotivo</b><span>Um pack real tem centenas de células e BMS próprio. Toda a economia é escalada para um pack hipotético de 10 kWh — abstração linear que ignora o custo de desmontar módulos.</span></div>
+      <div class="limit"><b>Ensaio acelerado a 2–8 C, ~100 °C</b><span>O estado medido é sólido; a vida projetada para destinos de 0,2–1 C é extrapolação do modelo de estresse, fora da faixa ensaiada. Daí os dois cenários.</span></div>
+      <div class="limit"><b>Falha abrupta sem precursor elétrico</b><span>O modelo de vida residual acerta a ordem de grandeza (erro de ~58 ciclos equivalentes), mas não a data da morte. Decisões que dependam de datar a falha não estão suportadas.</span></div>
+      <div class="limit"><b>Só três packs remontados</b><span>A âncora de recomissão e seu intervalo foram calibrados com dois packs por vez. É demonstração de mecanismo, não calibração.</span></div>
+      <div class="limit"><b>Sem EIS, gás ou tensão por célula</b><span>Os gates térmico e de autodescarga são <i>proxies</i> de sinais que a literatura mede com equipamento dedicado. E nenhum evento de abuso térmico existe no dataset: o gate G1 está demonstrado, não validado.</span></div>
+      <div class="limit"><b>Preços e frete são supostos</b><span>Ordens de grandeza plausíveis, não cotações. O prêmio de garantia depende de um carregamento arbitrado (1,3×) e de uma taxa de desconto arbitrada (12% a.a.).</span></div>
+      <div class="limit"><b>Regulação não modelada</b><span>REN 1.161/2026 (ANEEL), UL 1974 e IEC 62619 entram só como custo fixo de certificação por kWh. O que elas <i>proíbem</i> não está no motor.</span></div>
+      <div class="limit"><b>Envelhecimento de prateleira é premissa</b><span>2% de SOH por ano, valor plausível da literatura, não medido aqui. É ele que limita a vida do destino de backup.</span></div>
+      <div class="limit"><b>Um pack, uma decisão</b><span>O roteador decide bateria por bateria. Não modela efeito de escala — lote mínimo para frete, capacidade do reciclador, liquidez do mercado secundário —, que na prática é decisivo.</span></div>
     </div>
   </section>
 
   <footer>
     <div class="refs">
-      <span class="eyebrow">Referências usadas no motor</span>
-      <span>Fricke, Nascimento &amp; Viana (2023) — Randomized &amp; Recommissioned Battery Dataset, NASA/UCF · Lai et al. (2021) Energy Storage Materials 40 · Guan et al. (2025) J. Energy Storage 132 · Wei, Han &amp; Li (2022) J. Energy Storage 51 · Liu et al. (2024) J. Energy Storage 87 · Kumar, Huyn &amp; Vennelakanti (2023) npj Mater. Sustain. 1 · Seger et al. (2022) J. Energy Storage 47 · Wang, Huang &amp; Wang (2023) J. Energy Storage 63 · Li et al. (2024) Applied Thermal Eng. 240 · Geng et al. (2026) Renew. Sustain. Energy Rev. 240 · Bagherpour &amp; de Callafon (2020) IFAC-PapersOnLine 53-2.</span>
+      <span class="eyebrow">Referências</span>
+      <span><b>Dados:</b> Fricke, K., Nascimento, R. G. &amp; Viana, F. A. C. (2023). <i>An accelerated Life Testing Dataset for Lithium-Ion Batteries with Constant and Variable Loading Conditions</i>. NASA Prognostics Center of Excellence / University of Central Florida.</span>
+      <span><b>Arquitetura da triagem:</b> Lai, X. et al. (2021). <i>Turning waste into wealth: a systematic review on echelon utilization and material recycling of retired lithium-ion batteries</i>. Energy Storage Materials 40, 96–123 — §3.2.3, segurança como filtro unidimensional.</span>
+      <span><b>Critério por cenário e gargalo de dados:</b> Guan, S. et al. (2025). <i>Status, challenges, and techniques of echelon utilization of retired lithium-ion batteries</i>. Journal of Energy Storage 132, 117786 — §3, dados de ciclo de vida; §4.2, triagem e reagrupamento.</span>
+      <span><b>SOH com erro tratado como distribuição:</b> Wei, Z., Han, X. &amp; Li, J. (2022). <i>State of health assessment for echelon utilization batteries based on deep neural network learning with error correction</i>. Journal of Energy Storage 51, 104428.</span>
+      <span><b>Features de trecho parcial e triagem por agrupamento:</b> Liu, T. et al. (2024). <i>An enhanced sorting method for retired battery with feature selection and multiple clustering</i>. Journal of Energy Storage 87, 111422.</span>
+      <span><b>Relaxação de tensão e otimização de valor do ecossistema:</b> Kumar, A., Huyn, P. &amp; Vennelakanti, R. (2023). <i>A digital solution framework for enabling electric vehicle battery circularity based on an ecosystem value optimization approach</i>. npj Materials Sustainability 1, 1.</span>
+      <span><b>Parâmetros de célula de segunda vida com incerteza:</b> Seger, P. V. H. et al. (2022). <i>Open data model parameterization of a second-life Li-ion battery</i>. Journal of Energy Storage 47, 103546.</span>
+      <span><b>Reagrupamento rápido e efeito barril:</b> Wang, Y., Huang, H. &amp; Wang, H. (2023). <i>Rapid-regroup strategy for retired batteries based on short-time dynamic voltage and electrochemical impedance spectroscopy</i>. Journal of Energy Storage 63, 107102.</span>
+      <span><b>Assinatura térmica do envelhecimento desigual:</b> Li, J.-X. et al. (2024). <i>Study on the temperature rise characteristics of aging lithium-ion batteries under different cooling methods</i>. Applied Thermal Engineering 240, 122235.</span>
+      <span><b>Segurança de BESS de segunda vida e antecipação de fuga térmica:</b> Geng, M. et al. (2026). <i>A review on AI-powered safety management of battery energy storage system</i>. Renewable and Sustainable Energy Reviews 240, 117165 — §6.</span>
+      <span><b>Intervalos calibrados:</b> Romano, Y., Patterson, E. &amp; Candès, E. (2019). <i>Conformalized Quantile Regression</i>. NeurIPS 32. · <b>Valor da informação:</b> Howard, R. A. (1966). <i>Information value theory</i>. IEEE Transactions on Systems Science and Cybernetics 2(1), 22–26.</span>
+      <span><b>Caso de negócio da segunda vida:</b> relatório final de conhecimento do trial ARENA da Relectrify (ReVolve, 2020–2024), discutido no dossiê do projeto, §3.1.</span>
       <span id="gen-date"></span>
     </div>
   </footer>
@@ -345,19 +620,159 @@ function renderFindings() {
   const an = DATA.ancora_segunda_vida;
   const loop = DATA.laco;
   const between = loop.filter(r => {
-    const a = r["EFC previsto só fade (P50)"], b = r["EFC conservador P50"], real = r["EFC entregue na 2ª vida"];
-    return real >= Math.min(a, b) && real <= Math.max(a, b);
+    const a = r["EFC previsto só fade (P50)"], c = r["EFC conservador P50"], real = r["EFC entregue na 2ª vida"];
+    return real >= Math.min(a, c) && real <= Math.max(a, c);
   }).length;
   const items = [
     [`${NF(1).format(quick.MAE)} <small>p.p.</small>`, `Erro médio do SOH no laudo rápido (~20 min, sem histórico), contra ${NF(1).format(age.MAE)} p.p. só pela idade e ${NF(1).format(full.MAE)} p.p. com ciclo completo.`],
-    [`${NF(0).format(quick["cobertura P10–P90"] * 100)}<small>%</small>`, `Das medições caem dentro do intervalo P10–P90 declarado (promessa: 80%).`],
-    [`${NF(1).format(an.puro.MAE)} → ${NF(1).format(an.ancorado.MAE)} <small>p.p.</small>`, `Erro em packs remontados antes e depois de um único ensaio de recomissão. Sem ele, o laudo diz "inconclusivo".`],
+    [`${NF(0).format(quick["cobertura P10–P90"] * 100)}<small>%</small>`, `Das medições caem dentro do intervalo P10–P90 declarado (promessa: 80%). Mede se a incerteza é honesta.`],
+    [`${NF(1).format(an.puro.MAE)} → ${NF(1).format(an.ancorado.MAE)} <small>p.p.</small>`, `Erro em packs remontados antes e depois de um único ensaio de recomissão. Sem ele, o laudo diz “inconclusivo”.`],
     [`${between} <small>de ${loop.length}</small>`, `Pares origem → pack remontado em que a vida real na 2ª vida ficou entre os cenários conservador e só fade.`],
   ];
   document.getElementById("findings").innerHTML = items.map(([big, txt]) =>
     `<div class="finding"><span class="big">${big}</span><p>${txt}</p></div>`).join("");
   document.getElementById("ds-summary").textContent = `${NF(0).format(DATA.dataset.ciclos)} ciclos de ${DATA.dataset.packs} packs`;
-  document.getElementById("gen-date").textContent = `Resultados gerados em ${DATA.gerado_em} por scripts/export_site.py.`;
+  document.getElementById("ds-cycles").textContent = NF(0).format(DATA.dataset.ciclos);
+  document.getElementById("ds-refs").textContent = NF(0).format(DATA.dataset.referencias);
+  document.getElementById("howto-kwh").textContent = NF(0).format(DATA.economia.pack_kwh);
+  document.getElementById("gen-date").textContent = `Resultados gerados em ${DATA.gerado_em} por scripts/export_site.py · código do motor em bloom/.`;
+}
+
+/* ---------- diagrama do ciclo ---------- */
+function renderCycleDiagram() {
+  const W = 520, H = 250;
+  const vy = v => 200 - (v - 4.6) * 31;
+  const pts = [[34, vy(8.3)], [58, vy(8.3)], [64, vy(7.6)], [80, vy(7.3)], [150, vy(6.6)], [215, vy(5.6)], [231, vy(5.0)],
+               [235, vy(5.9)], [250, vy(6.0)], [300, vy(6.05)], [322, vy(6.7)], [360, vy(7.6)], [400, vy(8.2)],
+               [440, vy(8.5)], [468, vy(8.63)], [474, vy(8.4)], [502, vy(8.33)]];
+  const path = pts.map((p, i) => `${i ? "L" : "M"}${p[0]},${p[1]}`).join("");
+  const seg = (x1, x2, label) => `<line x1="${x1}" x2="${x2}" y1="214" y2="214" style="stroke:var(--faint);stroke-width:2"></line>
+    <text x="${(x1 + x2) / 2}" y="228" text-anchor="middle" style="font-size:9px">${label}</text>`;
+  document.getElementById("cycle-diagram").innerHTML = `
+  <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Esquema de um ciclo: repouso, descarga, repouso, recarga e repouso, com os pontos de medida do laudo rápido">
+    <line class="gridline" x1="34" x2="508" y1="${vy(8.63)}" y2="${vy(8.63)}"></line>
+    <line class="gridline" x1="34" x2="508" y1="${vy(5.0)}" y2="${vy(5.0)}"></line>
+    <text x="2" y="${vy(8.63) + 3}" style="font-size:9px">8,6 V</text>
+    <text x="2" y="${vy(5.0) + 3}" style="font-size:9px">5,0 V</text>
+    <path d="${path}" class="p50"></path>
+    ${seg(34, 58, "repouso")}
+    ${seg(62, 231, "descarga (missão) 5–19 A")}
+    ${seg(235, 300, "repouso 10 min")}
+    ${seg(304, 468, "recarga CC-CV")}
+    ${seg(472, 506, "repouso")}
+    <circle cx="66" cy="${vy(7.55)}" r="3.4" style="fill:var(--accent)"></circle>
+    <circle cx="80" cy="${vy(7.3)}" r="3.4" style="fill:var(--accent)"></circle>
+    <text x="88" y="${vy(7.15)}" style="fill:var(--accent);font-size:9px">pulso 2–120 s → resistência</text>
+    <circle cx="246" cy="${vy(6.0)}" r="3.4" style="fill:var(--faint)"></circle>
+    <text x="256" y="${vy(5.45)}" style="font-size:9px">relaxação (telemetria)</text>
+    <circle cx="360" cy="${vy(7.6)}" r="3.4" style="fill:var(--accent)"></circle>
+    <circle cx="400" cy="${vy(8.2)}" r="3.4" style="fill:var(--accent)"></circle>
+    <text x="300" y="${vy(8.62)}" style="fill:var(--accent);font-size:9px">janela 7,6 → 8,4 V</text>
+    <circle cx="492" cy="${vy(8.34)}" r="3.4" style="fill:var(--accent)"></circle>
+    <text x="508" y="${vy(7.75)}" text-anchor="end" style="fill:var(--accent);font-size:9px">queda em 9 min</text>
+    <text x="34" y="16" style="font-size:9px">tensão do pack</text>
+    <text x="508" y="16" text-anchor="end" style="font-size:9px">a cada 30–60 h: descarga de referência a 2,5 A (gabarito)</text>
+  </svg>`;
+}
+
+/* ---------- equações ---------- */
+function renderEqs() {
+  const st = DATA.estresse, e = DATA.economia, g = DATA.gates_ref;
+  const fade = I => Math.exp(st.a + st.b * I);
+  const iMin = st.pontos.reduce((m, p) => Math.min(m, p.i_mean), 99);
+  const rows = [
+    ["Estado de saúde (SOH)",
+      `SOH = <em>Q</em><sub>ref</sub> ÷ <em>Q</em><sub>nom</sub>`,
+      `<b>Q<sub>ref</sub></b> capacidade medida na descarga de referência (Ah) · <b>Q<sub>nom</sub></b> capacidade de fábrica, 2,5 Ah por célula`,
+      "A definição padrão de SOH por capacidade. É o que a página chama de “saúde”.",
+      "Seger et al. 2022, §2.2; Wei et al. 2022, Eq. (1)"],
+    ["Capacidade por contagem de Coulomb",
+      `<em>Q</em> = (1 ÷ 3600) × ∫ <em>I</em>(t) dt`,
+      `<b>I(t)</b> corrente medida a ~1 Hz durante a descarga · resultado em Ah`,
+      "Somar a corrente ao longo do tempo dá a carga entregue — como medir quanta água saiu somando a vazão.",
+      "Prática padrão de bancada; Seger et al. 2022, §2.3"],
+    ["Resistência aparente no pulso",
+      `<em>R</em>(Δt) = (<em>V</em><sub>repouso</sub> − <em>V</em>(Δt)) ÷ <em>I</em>(Δt)`,
+      `<b>V<sub>repouso</sub></b> tensão antes de aplicar carga · <b>V(Δt)</b> tensão após 2, 10, 60 ou 120 s · <b>I(Δt)</b> corrente naquele instante`,
+      `Quanto mais velha a bateria, mais a tensão cai ao puxar corrente. Na frota saudável dá ${NF(0).format(g.r_novo * 1000)} mΩ; acima de 1,3× disso a bateria já não serve para tração. Ressalva: em 10 s isto mistura resistência ôhmica com polarização — é um <i>proxy</i>, não o R₀ puro do EIS.`,
+      "Wei et al. 2022, Eq. (3); Seger et al. 2022, Eq. (6)"],
+    ["Ciclo equivalente completo",
+      `EFC = Ah acumulado ÷ <em>Q</em><sub>nom</sub>`,
+      `converte uso irregular em “quantas cargas completas equivaleriam”`,
+      "Permite comparar um pack que faz descargas rasas com outro que faz descargas profundas.",
+      "Convenção usual em ensaios de vida"],
+    ["Aquecimento esperado (base do gate G1)",
+      `Δ<em>T</em><sub>2min</sub> ≈ α·<em>I</em> + β·<em>I</em>²·<em>R</em> + γ·<em>T</em><sub>0</sub><br>deriva = mediana(resíduo recente) − mediana(resíduo no início da vida)`,
+      `<b>I</b> corrente · <b>R</b> resistência aparente · <b>T<sub>0</sub></b> temperatura inicial · resíduo = aquecimento medido − esperado`,
+      `O calor tem duas partes: uma proporcional a I²R (efeito Joule) e uma proporcional a I (entrópica). O gate só reage ao que <b>sobra</b> disso e compara o pack com ele mesmo — veto acima de ${NF(1).format(g.deriva_termica_limite)} °C de deriva. Os coeficientes α, β e γ vêm de regressão robusta na frota saudável.`,
+      "Li et al. 2024, §3.2 (célula mais velha gera 1,33 W contra 1,15 W); Geng et al. 2026, §6.1"],
+    ["Intervalo calibrado (conformal)",
+      `<em>s</em><sub>i</sub> = max(P10<sub>i</sub> − <em>y</em><sub>i</sub>, <em>y</em><sub>i</sub> − P90<sub>i</sub>)<br><em>w</em> = quantil 80% de <em>s</em> nos outros packs<br>intervalo = [P10 − <em>w</em>, P90 + <em>w</em>]`,
+      `<b>y<sub>i</sub></b> SOH medido · <b>s<sub>i</sub></b> o quanto o intervalo precisaria crescer para conter a medição`,
+      "É o que torna o P10–P90 uma promessa verificável em vez de enfeite: o alargamento é calculado em packs que o modelo não viu, e a cobertura resultante é medida e publicada.",
+      "Romano, Patterson &amp; Candès 2019; papel análogo à correção por cadeia de Markov de Wei et al. 2022"],
+    ["Modelo de estresse (fade por ciclo)",
+      `fade(<em>I</em>) = exp(${NF(2).format(st.a)} + ${NF(3).format(st.b)} · <em>I</em>)`,
+      `<b>I</b> corrente média da missão (A) · resultado: fração de SOH perdida por ciclo equivalente`,
+      `Ajustado nos packs do dataset: a 16 A cada ciclo custa ${NF(3).format(fade(16) * 100)}% de SOH; a 0,75 A (0,3 C, típico de BESS) custa ${NF(3).format(fade(0.75) * 100)}%. A forma exponencial vem do ajuste — e extrapolar para correntes abaixo da menor ensaiada (${NF(1).format(iMin)} A) é a maior abstração do modelo.`,
+      "Ajuste próprio sobre o dataset; fatores de estresse conforme Guan et al. 2025, §4.1"],
+    ["Vida no destino",
+      `anos = (SOH − SOH<sub>fim</sub>) ÷ (ciclos/ano × fade(<em>I</em><sub>destino</sub>) + ${pct(DATA.calendario, 0)}/ano)<br>cenário conservador: anos = min(anos, RUL × aceleração ÷ ciclos/ano)`,
+      `<b>SOH<sub>fim</sub></b> SOH em que a bateria sai daquele destino · <b>RUL</b> vida residual prevista no uso atual · <b>aceleração</b> = fade(I atual) ÷ fade(I destino)`,
+      "O denominador soma duas perdas: a de usar (ciclos) e a de existir (calendário). O cenário conservador ainda limita pela falha abrupta observada, sem creditar vida abaixo da menor corrente ensaiada.",
+      "Estrutura usual de modelos de vida; o fade calendárico é premissa, não medição"],
+    ["VPL de um destino",
+      `VPL = kWh × SOH × <em>p</em><sub>novo</sub> × <em>f</em> × min(1, anos ÷ vida<sub>ref</sub>)<br>&nbsp;&nbsp;− kWh × (reembalagem + frete + certificação)<br>&nbsp;&nbsp;− prêmio de garantia<br>&nbsp;&nbsp;+ valor de reciclagem ÷ (1 + <em>r</em>)<sup>anos</sup>`,
+      `<b>p<sub>novo</sub></b> preço do produto novo equivalente · <b>f</b> fator de preço da bateria de 2ª vida · <b>vida<sub>ref</sub></b> vida do produto novo · <b>r</b> taxa de desconto (${pct(e.discount_rate, 0)} a.a.)`,
+      "Primeira linha: o comprador paga proporcionalmente à vida que vai receber. Última linha: o valor de sucata no fim, trazido a valor presente. A reciclagem imediata é o caso em que só essa última parcela existe.",
+      "Estrutura de Kumar et al. 2023, Eq. (3)–(4) e (10)–(12)"],
+    ["Prêmio de garantia",
+      `prêmio = ${NF(2).format(e.warranty_loading)} × P(anos &lt; garantia) × kWh × SOH × <em>p</em><sub>unitário</sub>`,
+      `<b>P(anos &lt; garantia)</b> fração dos cenários em que a bateria morre antes do fim da garantia · <b>${NF(2).format(e.warranty_loading)}×</b> carregamento (a margem de quem assume o risco)`,
+      "É a incerteza virando dinheiro: quanto mais largo o intervalo de SOH, maior a chance de sinistro e maior o prêmio que a conta tem de suportar. Foi exatamente isso que travou a Relectrify em 4 anos de garantia.",
+      "Estrutura de seguro (perda esperada × carregamento); dossiê do projeto, §3.4"],
+    ["Valor da informação",
+      `VI = média(max<sub>destino</sub> VPL) − max<sub>destino</sub>(média VPL)<br>se VI &gt; ${brl(e.reference_test_brl_pack)} → ensaiar antes de decidir`,
+      `primeiro termo: decidir já sabendo qual cenário é o verdadeiro · segundo: decidir com a informação de hoje`,
+      `A diferença é quanto vale eliminar a dúvida. Se supera o custo de um ensaio de referência (${brl(e.reference_test_brl_pack)} por pack), o laudo recomenda ensaiar — é assim que “não sei” se torna uma recomendação acionável.`,
+      "Howard 1966, teoria do valor da informação"],
+  ];
+  document.getElementById("eqs").innerHTML = rows.map(([title, eq, syms, why, src], i) => `
+    <div class="eqrow">
+      <div class="left"><h4>${i + 1} · ${title}</h4><div class="eq">${eq}</div><div class="symbols"><span>${syms}</span></div></div>
+      <div class="right"><span>${why}</span><span class="src">Fonte: ${src}</span></div>
+    </div>`).join("");
+}
+
+/* ---------- premissas ---------- */
+function renderPremissas() {
+  const e = DATA.economia, g = DATA.gates_ref, st = DATA.estresse;
+  const rows = [
+    ["SOH e capacidade", "descargas de referência a 2,5 A", "medido", "é o gabarito do dataset; todo o resto é comparado com ele"],
+    ["Resistência de um pack novo", `${NF(0).format(g.r_novo * 1000)} mΩ`, "medido", "mediana dos primeiros 25% da vida dos packs de 1ª vida"],
+    ["Limite do gate térmico", `${NF(1).format(g.deriva_termica_limite)} °C de deriva`, "medido", "P99 da deriva na frota saudável, mais 1 °C de margem"],
+    ["Limite de relaxação pós-carga", `${NF(0).format(g.relaxacao_limite * 1000)} mV em 9 min`, "medido", "P99 da frota saudável × 1,25"],
+    ["Limite de novidade (gate G5)", `${NF(1).format(g.novidade_limite)}`, "medido", "P99 da distância à frota de 1ª vida; acima disso o laudo é inconclusivo"],
+    ["Fade por ciclo vs. corrente", `exp(${NF(2).format(st.a)} + ${NF(3).format(st.b)}·I)`, "medido", "ajustado nos packs; a extrapolação para taxas baixas é abstração"],
+    ["Frete de carga perigosa", `R$ ${NF(0).format(e.logistics_brl_kwh)}/kWh`, "literatura", "caso Relectrify/ARENA: US$ 20–40/kWh em rota internacional, aqui adaptado a rota doméstica"],
+    ["Valor de material reciclado", `R$ ${NF(0).format(e.material_value_brl_kwh)}/kWh bruto − R$ ${NF(0).format(e.recycling_process_brl_kwh)}/kWh de processo`, "literatura", "Kumar et al. 2023: reciclagem entre −US$ 21,4 e +US$ 21,9/kWh, ou seja, perto de zero"],
+    ["Fade calendárico", `${pct(DATA.calendario, 0)} de SOH por ano`, "literatura", "ordem de grandeza usual para célula envelhecida a 25 °C; não medido neste dataset"],
+    ["Preço dos produtos novos", "R$ 600 a 1.800/kWh conforme o destino", "suposto", "ordens de grandeza plausíveis no Brasil; nenhuma cotação foi feita"],
+    ["Fator de preço da 2ª vida", "0,50 a 0,75 do produto novo", "suposto", "desconto que um comprador aceitaria; sem pesquisa de mercado"],
+    ["Reembalagem e integração", "R$ 60 a 450/kWh conforme o destino", "suposto", "inclui BMS, gabinete e mão de obra"],
+    ["Certificação individual", `R$ ${NF(0).format(e.certification_brl_kwh)}/kWh`, "suposto", "custo atribuído a uma avaliação tipo UL 1974; sem orçamento real"],
+    ["Custo do laudo e do ensaio", `R$ ${NF(0).format(e.bloom_test_brl_pack)} e R$ ${NF(0).format(e.reference_test_brl_pack)} por pack`, "suposto", "entram na decisão de ensaiar ou não (equação 11)"],
+    ["Taxa de desconto e carregamento", `${pct(e.discount_rate, 0)} a.a. · ${NF(2).format(e.warranty_loading)}×`, "suposto", "arbitrados; afetam diretamente o prêmio de garantia"],
+    ["Pack de referência", `${NF(0).format(e.pack_kwh)} kWh`, "suposto", "os packs do dataset têm ~18 Wh; a economia é escalada linearmente"],
+    ["Ciclos por ano de cada destino", "24 a 330", "suposto", "perfil de uso presumido: backup cicla pouco, BESS cicla quase todo dia"],
+    ["Regulação (ANEEL, UL, IEC)", "só como custo de certificação", "fora do escopo", "o que a norma proíbe, ou exige em ensaio, não está modelado"],
+    ["Efeito de escala e liquidez", "—", "fora do escopo", "lote mínimo de frete, capacidade do reciclador e demanda real do mercado secundário"],
+    ["Envelhecimento de prateleira real", "—", "fora do escopo", "nenhum pack do dataset ficou parado por meses"],
+  ];
+  document.getElementById("prem-table").innerHTML = `<h3>Origem de cada número</h3><table>
+    <thead><tr><th>parâmetro</th><th>valor usado</th><th>status</th><th>de onde vem, e o que muda se estiver errado</th></tr></thead>
+    <tbody>${rows.map(([p, v, tag, src]) => `<tr><td><b>${esc(p)}</b></td><td class="num">${v}</td>
+      <td><span class="tag ${tag.replace(/ /g, "")}">${tag}</span></td><td class="small">${src}</td></tr>`).join("")}</tbody></table>`;
 }
 
 /* ---------- rail ---------- */
@@ -383,7 +798,7 @@ function renderRail() {
 function renderChart() {
   const p = DATA.packs[state.pack];
   const ds = p.decisoes[state.scenario];
-  const W = 760, H = 270, m = { l: 44, r: 14, t: 12, b: 30 };
+  const W = 760, H = 270, m = { l: 44, r: 14, t: 16, b: 30 };
   const med = (arr, k = 5) => arr.map((_, i) => { const w = arr.slice(Math.max(0, i - k + 1), i + 1).slice().sort((a, b) => a - b); return w[Math.floor(w.length / 2)]; });
   const s = { ciclo: p.serie.ciclo, p10: med(p.serie.p10), p50: med(p.serie.p50), p90: med(p.serie.p90) };
   const xmax = p.ciclos;
@@ -404,10 +819,11 @@ function renderChart() {
       <circle cx="${x(dd.ciclo)}" cy="${y(dd.soh.p50)}" r="${i === state.idx ? 7 : 5.5}" style="fill:${dcol(dd.recomendacao)}"></circle>
     </g>`).join("");
   document.getElementById("chart").innerHTML = `
-    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="SOH do pack ${state.pack} ao longo dos ciclos">
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="SOH do pack ${state.pack} ao longo dos ciclos, com faixa P10 a P90 e decisões do roteador">
       ${yt.map(v => `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"></line><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${NF(0).format(v * 100)}%</text>`).join("")}
       ${xt.map(c => `<text x="${x(c)}" y="${H - m.b + 17}" text-anchor="middle">${c}</text>`).join("")}
       <text x="${W - m.r}" y="${H - 2}" text-anchor="end">ciclo</text>
+      <text x="${m.l - 40}" y="${m.t - 4}" style="font-size:10px">SOH</text>
       <polygon class="band" points="${band}"></polygon>
       <path class="p50" d="${line}"></path>
       ${p.referencias.ciclo.map((c, i) => `<circle class="refdot" cx="${x(c)}" cy="${y(p.referencias.soh[i])}" r="2.4"></circle>`).join("")}
@@ -449,6 +865,7 @@ function renderLaudo() {
   const all = dd.destinos.flatMap(x => [x.vpl_p10, x.vpl_p90]);
   const lo = Math.min(0, ...all), hi = Math.max(0, ...all);
   const real = dd.soh_real == null ? "" : `<small> · medido ${pct(dd.soh_real)}${dd.rotulo_extrapolado ? " (extrap.)" : ""}</small>`;
+  const recycle = DATA.economia.pack_kwh * (DATA.economia.material_value_brl_kwh - DATA.economia.recycling_process_brl_kwh - DATA.economia.logistics_brl_kwh);
   const call = [];
   if (vetos.length) call.push(`<div class="callout veto"><b>Veto de segurança:</b> ${vetos.map(g => esc(g.gate)).join(", ")}. Nenhum reuso é avaliado economicamente enquanto o veto vale.</div>`);
   if (dd.pede_ensaio) call.push(`<div class="callout"><b>Laudo pede ensaio antes de decidir.</b> ${inconc.length ? esc(inconc.map(g => g.evidence).join(" · ")) : `O valor da informação (${brl(dd.voi)}) supera o custo do ensaio completo.`}</div>`);
@@ -487,7 +904,7 @@ function renderLaudo() {
             <td class="num">${x.elegivel ? pct(x.p_melhor, 0) : "—"}</td>
           </tr>`).join("")}</tbody>
       </table></div>
-      <p class="small" style="margin-top:8px">VPL = venda do produto de 2ª vida (proporcional à vida entregue) − reembalagem − frete e certificação − prêmio de garantia + reciclagem descontada no fim. A barra mostra o VPL médio; o traço, o intervalo P10–P90 dos cenários.</p>
+      <p class="small" style="margin-top:8px">VPL pela equação 9: venda do produto de 2ª vida (proporcional à vida entregue) − reembalagem − frete e certificação − prêmio de garantia + reciclagem descontada no fim. A reciclagem imediata dá ${brl(recycle)}, porque material (R$ ${NF(0).format(DATA.economia.material_value_brl_kwh)}/kWh) − processo (R$ ${NF(0).format(DATA.economia.recycling_process_brl_kwh)}/kWh) − frete (R$ ${NF(0).format(DATA.economia.logistics_brl_kwh)}/kWh) dá negativo.</p>
     </div>`;
 }
 
@@ -512,7 +929,7 @@ function renderFleet() {
     bars += `<text x="${m.l + i * bw + bw / 2}" y="${H - m.b + 17}" text-anchor="middle">${lab}</text>`;
   });
   const yt = [0, .5, 1].map(v => `<text x="${m.l - 6}" y="${H - m.b - v * (H - m.t - m.b) + 4}" text-anchor="end">${v * 100}%</text>`).join("");
-  document.getElementById("fleet-chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Recomendação por fase da vida">${yt}${bars}</svg>`;
+  document.getElementById("fleet-chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fração das decisões por destino em cada fase da vida">${yt}${bars}</svg>`;
   document.getElementById("dest-legend").innerHTML = ORDER.map(k => `<span><i class="swatch" style="background:${dcol(k)}"></i>${DEST_SHORT[k]}</span>`).join("");
   document.getElementById("fleet-note").textContent = `${f.n} decisões (26 packs × 6 momentos) no cenário ${state.scenario === "fade" ? "só fade" : "conservador"}: ${f.vetos} com veto de segurança e ${f.pede_ensaio} em que o laudo pede ensaio antes de decidir.`;
 
@@ -547,25 +964,25 @@ function renderLoop() {
   document.getElementById("loop-legend").innerHTML = keys.map(([, c, lab]) => `<span><i class="swatch" style="background:${c}"></i>${lab}</span>`).join("");
 }
 
-/* ---------- health + premissas ---------- */
+/* ---------- health + destinos ---------- */
 function renderStatic() {
   const b = DATA.benchmark;
   const sets = [...new Set(b.map(r => r.conjunto))];
-  const groups = ["todos", "regular_cc", "regular_random", "recommissioned", "second_life"];
   const gl = { todos: "todos os packs", ...GROUP_LABEL };
   document.getElementById("bench").innerHTML = `
-    <table><thead><tr><th>conjunto de features</th><th class="num">MAE</th><th class="num">P90 |erro|</th><th class="num">cobertura</th><th class="num">largura</th></tr></thead>
+    <h3>Erro por conjunto de features</h3>
+    <table><thead><tr><th>conjunto</th><th class="num">MAE</th><th class="num">P90 |erro|</th><th class="num">cobertura</th><th class="num">largura</th></tr></thead>
     <tbody>${sets.map(s => { const r = b.find(x => x.conjunto === s && x.grupo === "todos"); return `<tr><td>${esc(s)}</td><td class="num">${NF(2).format(r.MAE)}</td><td class="num">${NF(1).format(r["P90 |erro|"])}</td><td class="num">${pct(r["cobertura P10–P90"], 0)}</td><td class="num">${NF(1).format(r["largura média"])}</td></tr>`; }).join("")}</tbody></table>
-    <h3 style="margin-top:14px">Laudo rápido por grupo</h3>
+    <h3 style="margin-top:14px">Laudo rápido por grupo de packs</h3>
     <table><thead><tr><th>grupo</th><th class="num">MAE</th><th class="num">cobertura</th></tr></thead>
-    <tbody>${groups.slice(1).map(g => { const r = b.find(x => x.conjunto === "laudo rápido" && x.grupo === g); return `<tr><td>${esc(gl[g])}</td><td class="num">${NF(2).format(r.MAE)}</td><td class="num">${pct(r["cobertura P10–P90"], 0)}</td></tr>`; }).join("")}</tbody></table>`;
+    <tbody>${["regular_cc", "regular_random", "recommissioned", "second_life"].map(g => { const r = b.find(x => x.conjunto === "laudo rápido" && x.grupo === g); return `<tr><td>${esc(gl[g])}</td><td class="num">${NF(2).format(r.MAE)}</td><td class="num">${pct(r["cobertura P10–P90"], 0)}</td></tr>`; }).join("")}</tbody></table>`;
   const q = b.find(x => x.conjunto === "laudo rápido" && x.grupo === "todos");
   const full = b.find(x => x.conjunto.startsWith("ciclo completo") && x.grupo === "todos");
   const vr = DATA.vida_residual;
   document.getElementById("health-prose").innerHTML = `
-    <p>O <b>laudo rápido</b> — pulso de descarga de 2 minutos, janela de carga de 7,6 a 8,4 V e 9 minutos de repouso — erra ${NF(1).format(q.MAE)} p.p. sem nenhum histórico. Com a descarga completa, o erro cai para ${NF(1).format(full.MAE)} p.p., comparável ao MAE &lt; 0,8% de Wei et al. (2022). A distância entre os dois é o preço de não ciclar.</p>
-    <p><b>Packs remontados quebram o modelo:</b> a capacidade segue a pior célula, enquanto resistência e aquecimento refletem a média das duas (o "efeito barril" de Wang et al. 2023). O modelo superestima o SOH desses packs. A resposta no desenho é um gate de procedência e um único ensaio de recomissão como âncora.</p>
-    <p><b>A vida residual é a parte menos previsível:</b> erro médio de ${NF(0).format(vr.MAE)} ciclos equivalentes, com intervalo médio de ${NF(0).format(vr["largura média"])}. A falha dos packs é abrupta e os sinais elétricos não avisam — é onde sensores de gás e deformação têm valor.</p>`;
+    <p>O <b>laudo rápido</b> — pulso de descarga de 2 minutos, janela de carga de 7,6 a 8,4 V e 9 minutos de repouso — erra ${NF(1).format(q.MAE)} p.p. sem nenhum histórico. Com a descarga completa o erro cai para ${NF(1).format(full.MAE)} p.p., comparável ao MAE &lt; 0,8% de Wei et al. (2022), que usa curva de descarga de referência. <b>A distância entre os dois é o preço de não ciclar.</b></p>
+    <p><b>Packs remontados quebram o modelo:</b> a capacidade segue a pior célula, enquanto resistência e aquecimento refletem a média das duas — o “efeito barril” de Wang et al. (2023). O modelo superestima o SOH desses packs e a cobertura desaba. A resposta no desenho é o gate de procedência mais um único ensaio de recomissão como âncora.</p>
+    <p><b>A vida residual é a parte menos previsível:</b> erro médio de ${NF(0).format(vr.MAE)} ciclos equivalentes, intervalo médio de ${NF(0).format(vr["largura média"])} e cobertura de ${pct(vr["cobertura P10–P90"], 0)} — ou seja, o intervalo é honesto, só é largo. A falha é abrupta e os sinais elétricos não avisam; é aí que sensores de gás e deformação têm valor.</p>`;
 
   const D = DATA.destinos;
   document.getElementById("dest-table").innerHTML = `<table>
@@ -576,15 +993,6 @@ function renderStatic() {
       <td class="num">${d.cycles_per_year || "—"}</td><td class="num">${d.new_product_brl_kwh ? "R$ " + NF(0).format(d.new_product_brl_kwh) + "/kWh" : "—"}</td>
       <td class="num">${d.price_factor ? NF(2).format(d.price_factor) : "—"}</td><td class="num">${d.repack_brl_kwh ? "R$ " + d.repack_brl_kwh + "/kWh" : "—"}</td>
       <td class="num">${d.warranty_years ? d.warranty_years + " a" : "—"}</td></tr>`).join("")}</tbody></table>`;
-  const e = DATA.economia;
-  const labels = { pack_kwh: ["pack de referência", v => NF(0).format(v) + " kWh"], new_price_index: ["índice de preço do novo", v => NF(2).format(v)],
-    logistics_brl_kwh: ["frete de carga perigosa", v => `R$ ${v}/kWh`], certification_brl_kwh: ["certificação individual", v => `R$ ${v}/kWh`],
-    bloom_test_brl_pack: ["laudo rápido BLOOM", v => `R$ ${v}/pack`], reference_test_brl_pack: ["ensaio de referência completo", v => `R$ ${v}/pack`],
-    material_value_brl_kwh: ["valor de material (NMC)", v => `R$ ${v}/kWh`], recycling_process_brl_kwh: ["processo de reciclagem", v => `R$ ${v}/kWh`],
-    discount_rate: ["taxa de desconto", v => pct(v, 0) + " a.a."], warranty_loading: ["carregamento da garantia", v => NF(2).format(v) + "×"] };
-  document.getElementById("eco").innerHTML = `<h3>Premissas econômicas</h3><div class="verdict" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">${Object.entries(labels).filter(([k]) => k in e).map(([k, [l, f]]) =>
-    `<div class="kv"><span class="k">${l}</span><span class="v">${f(e[k])}</span></div>`).join("")}
-    <div class="kv"><span class="k">fade calendárico</span><span class="v">${pct(DATA.calendario, 0)} de SOH/ano</span></div></div>`;
 }
 
 function renderAll() {
@@ -599,5 +1007,5 @@ document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
   renderRail(); renderAll();
 });
 document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.sc === state.scenario));
-renderFindings(); renderRail(); renderStatic(); renderLoop(); renderAll();
+renderFindings(); renderCycleDiagram(); renderEqs(); renderPremissas(); renderRail(); renderStatic(); renderLoop(); renderAll();
 </script>

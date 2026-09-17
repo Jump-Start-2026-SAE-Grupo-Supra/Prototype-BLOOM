@@ -8,7 +8,7 @@ vista. Roda sobre dados públicos de baterias de íon-lítio (26 packs, 9.613 ci
 **F0 — gêmeo digital offline** do dossiê: nenhum hardware novo.
 
 - 📓 **Notebook:** [`notebooks/BLOOM_prototipo.ipynb`](notebooks/BLOOM_prototipo.ipynb) — a narrativa completa, executada, com gráficos.
-- 🌐 **Site:** [`docs/index.html`](docs/index.html) — laudo interativo por pack, pronto para o GitHub Pages.
+- 🌐 **Site:** [`docs/index.html`](docs/index.html) — laudo interativo por pack, com glossário, o dataset explicado, o método de desenvolvimento e as equações com fonte. Abra o arquivo no navegador.
 
 ## O que o protótipo responde
 
@@ -73,7 +73,19 @@ O dataset bruto é o **Randomized & Recommissioned Battery Dataset** (Fricke, Na
 NASA PCoE / UCF). Descompacte em `battery_alt_dataset/battery_alt_dataset/`. A tabela processada
 `data/processed/cycles.parquet` já está no repositório, então notebook e site rodam sem o bruto.
 
-**GitHub Pages:** em *Settings → Pages*, publique a pasta `/docs` do branch `main`.
+**Ver o site localmente** (o repositório é privado, então não há GitHub Pages):
+
+```bash
+# opção 1: abrir o arquivo direto
+start docs/index.html            # Windows
+
+# opção 2: servidor local (evita restrições de file:// em alguns navegadores)
+.venv/Scripts/python -m http.server 8000 --directory docs
+# depois abra http://localhost:8000
+```
+
+A página é um único HTML com os resultados embutidos — não precisa de internet (só as fontes, que caem
+para a fonte do sistema se estiver offline).
 
 ## Limitações
 
