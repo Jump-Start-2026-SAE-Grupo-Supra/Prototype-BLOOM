@@ -1,0 +1,603 @@
+<title>Laudo BLOOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root {
+  --ground: #f3f5f4;
+  --surface: #ffffff;
+  --sunken: #e8ecea;
+  --ink: #15201d;
+  --muted: #5e6b67;
+  --faint: #8d9894;
+  --line: #d5dcd9;
+  --accent: #2f5bd3;
+  --accent-soft: rgba(47, 91, 211, .16);
+  --d-original: #2f5bd3;
+  --d-potencia: #1e9a74;
+  --d-energia: #c99416;
+  --d-backup: #8a6a4e;
+  --d-reciclagem: #6c7773;
+  --s-ok: #2e8a57;
+  --s-restringe: #b7790d;
+  --s-veta: #c0392f;
+  --s-inconclusivo: #7a5fb0;
+  --s-semdado: #8d9894;
+  --g-regular_cc: #2f5bd3;
+  --g-regular_random: #5f8fe0;
+  --g-recommissioned: #8a6a4e;
+  --g-second_life: #c0392f;
+  --heat-0: #eef2f0;
+  --heat-1: #1e9a74;
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0f1513; --surface: #172019; --sunken: #1d2723; --ink: #e5ece9; --muted: #9eaba6; --faint: #6f7c78;
+    --line: #2b3632; --accent: #7c9cf2; --accent-soft: rgba(124, 156, 242, .20);
+    --d-original: #7c9cf2; --d-potencia: #42c49a; --d-energia: #e3b43d; --d-backup: #b8977a; --d-reciclagem: #98a39f;
+    --s-ok: #4fbf80; --s-restringe: #e0a53a; --s-veta: #ef6a5e; --s-inconclusivo: #a68ce0; --s-semdado: #6f7c78;
+    --g-regular_cc: #7c9cf2; --g-regular_random: #a9c0f6; --g-recommissioned: #b8977a; --g-second_life: #ef6a5e;
+    --heat-0: #1d2723; --heat-1: #42c49a;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0f1513; --surface: #172019; --sunken: #1d2723; --ink: #e5ece9; --muted: #9eaba6; --faint: #6f7c78;
+  --line: #2b3632; --accent: #7c9cf2; --accent-soft: rgba(124, 156, 242, .20);
+  --d-original: #7c9cf2; --d-potencia: #42c49a; --d-energia: #e3b43d; --d-backup: #b8977a; --d-reciclagem: #98a39f;
+  --s-ok: #4fbf80; --s-restringe: #e0a53a; --s-veta: #ef6a5e; --s-inconclusivo: #a68ce0; --s-semdado: #6f7c78;
+  --g-regular_cc: #7c9cf2; --g-regular_random: #a9c0f6; --g-recommissioned: #b8977a; --g-second_life: #ef6a5e;
+  --heat-0: #1d2723; --heat-1: #42c49a;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -.005em; }
+h1 { font-size: clamp(2rem, 4.2vw, 2.9rem); font-weight: 700; line-height: 1.05; }
+h2 { font-size: 1.45rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--f-display); font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.lede { max-width: 68ch; color: var(--muted); font-size: 1.02rem; }
+.small { font-size: .84rem; color: var(--muted); }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top { display: grid; gap: 14px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+header.top .row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; }
+
+.findings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-block: 22px 34px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.finding { padding: 16px 18px; display: grid; gap: 4px; align-content: start; }
+.finding + .finding { border-left: 1px solid var(--line); }
+.finding .big { font-family: var(--f-mono); font-size: 1.55rem; font-weight: 500; line-height: 1.2; }
+.finding .big small { font-size: .9rem; color: var(--muted); }
+.finding p { font-size: .86rem; color: var(--muted); }
+
+section { display: grid; gap: 16px; margin-top: 44px; }
+.section-head { display: grid; gap: 6px; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: transparent; padding: 7px 14px; cursor: pointer; font-size: .88rem; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+
+.tool { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 20px; align-items: start; }
+.rail { display: grid; gap: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+.rail-group { display: grid; gap: 6px; }
+.rail-group .eyebrow { display: flex; align-items: center; gap: 6px; }
+.swatch { width: 9px; height: 9px; border-radius: 2px; display: inline-block; flex: none; }
+.pack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.pack-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 5px 0 4px; cursor: pointer; font-family: var(--f-mono); font-size: .86rem; display: grid; justify-items: center; gap: 3px; }
+.pack-btn .tick { width: 60%; height: 3px; border-radius: 2px; }
+.pack-btn[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.stage { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; min-width: 0; }
+.stage > *, .laudo > * { min-width: 0; }
+.chart-card { padding: 16px 16px 10px; display: grid; gap: 8px; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+svg text { fill: var(--muted); font-family: var(--f-mono); font-size: 11px; }
+.axis line, .axis path { stroke: var(--line); }
+.gridline { stroke: var(--line); stroke-dasharray: 2 3; }
+.band { fill: var(--accent-soft); }
+.p50 { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+.refdot { fill: var(--ink); }
+.marker { cursor: pointer; }
+.marker line { stroke-width: 1; stroke-dasharray: 3 3; }
+.marker circle { stroke: var(--surface); stroke-width: 2; }
+.marker.sel line { stroke-dasharray: none; stroke-width: 2; }
+
+.decision-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.decision-tabs button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 11px 4px 8px; cursor: pointer; font-size: .82rem; display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); }
+.decision-tabs button[aria-pressed="true"] { border-color: var(--ink); background: var(--sunken); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+
+.laudo { padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.verdict { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.verdict .rec { display: grid; gap: 4px; }
+.verdict .rec .name { font-family: var(--f-display); font-size: 1.35rem; font-weight: 600; line-height: 1.15; display: flex; gap: 9px; align-items: baseline; }
+.verdict .rec .name .dot { width: 12px; height: 12px; transform: translateY(1px); }
+.kv { display: grid; gap: 2px; }
+.kv .k { font-size: .76rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-family: var(--f-display); font-weight: 600; }
+.kv .v { font-family: var(--f-mono); font-size: 1.02rem; }
+.kv .v small { color: var(--muted); font-size: .8rem; }
+.callout { border-left: 3px solid var(--s-inconclusivo); background: var(--sunken); padding: 9px 12px; border-radius: 0 var(--r) var(--r) 0; font-size: .9rem; }
+.callout.veto { border-left-color: var(--s-veta); }
+
+.gates { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.gate { display: grid; grid-template-columns: 170px 104px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); align-items: baseline; font-size: .88rem; }
+.gate .src { color: var(--faint); font-size: .76rem; display: block; }
+.pill { display: inline-block; font-family: var(--f-display); font-weight: 600; font-size: .74rem; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; color: #fff; text-align: center; }
+.pill.ok { background: var(--s-ok); } .pill.restringe { background: var(--s-restringe); } .pill.veta { background: var(--s-veta); }
+.pill.inconclusivo { background: var(--s-inconclusivo); } .pill.semdado { background: var(--s-semdado); }
+
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .86rem; }
+th { text-align: left; font-family: var(--f-display); font-weight: 600; font-size: .76rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.out td { color: var(--faint); }
+tr.best td:first-child { box-shadow: inset 3px 0 0 var(--ink); }
+.dest-name { display: flex; gap: 8px; align-items: baseline; min-width: 210px; }
+.reason { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+.vplbar { width: 150px; }
+
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.card { padding: 16px; display: grid; gap: 10px; align-content: start; }
+.heat { display: grid; gap: 3px; }
+.heat .cells { display: grid; grid-template-columns: 64px repeat(4, minmax(0, 1fr)); gap: 3px; font-family: var(--f-mono); font-size: .8rem; }
+.heat .cell { padding: 8px 4px; text-align: center; border-radius: 3px; }
+.heat .lab { color: var(--muted); display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+.heat .collab { color: var(--muted); text-align: center; }
+
+.prose { display: grid; gap: 10px; max-width: 72ch; }
+.limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+.limit { padding: 10px 0; border-bottom: 1px solid var(--line); display: grid; gap: 3px; font-size: .9rem; }
+.limit b { font-family: var(--f-display); font-weight: 600; font-size: .98rem; }
+.refs { font-size: .82rem; color: var(--muted); display: grid; gap: 4px; max-width: 90ch; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); }
+
+@media (max-width: 900px) {
+  .tool { grid-template-columns: 1fr; }
+  .rail { position: static; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .findings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .finding:nth-child(3) { border-left: 0; }
+  .finding:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .verdict { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .verdict .rec { grid-column: 1 / -1; }
+  .two, .limits { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .wrap { padding-inline: 16px; }
+  .findings { grid-template-columns: 1fr; }
+  .finding + .finding { border-left: 0; border-top: 1px solid var(--line); }
+  .gate { grid-template-columns: 1fr auto; }
+  .gate .ev { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .marker circle, .pack-btn, .decision-tabs button { transition: transform .12s ease, border-color .12s ease; }
+  .marker:hover circle { transform-box: fill-box; transform-origin: center; transform: scale(1.25); }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">Equipe Supra · Jump Start 2026 · Missão 2 — Economia Circular Inteligente</span>
+    <div class="row">
+      <div style="display:grid;gap:10px">
+        <h1>Laudo BLOOM</h1>
+        <p class="lede">Laudo de saúde sem ciclagem completa, gates de segurança que eliminam destinos inseguros e o destino de maior valor para cada bateria — com a incerteza declarada e a conta à vista. Protótipo F0 sobre <span id="ds-summary">dados públicos</span> de íon-lítio (NASA/UCF).</p>
+      </div>
+      <div style="display:grid;gap:6px;justify-items:start">
+        <span class="eyebrow">Cenário de vida no destino</span>
+        <div class="seg" role="group" aria-label="Cenário de vida">
+          <button id="sc-conservador" aria-pressed="true" data-sc="conservador">Conservador</button>
+          <button id="sc-fade" aria-pressed="false" data-sc="fade">Só fade</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="findings" id="findings"></div>
+
+  <section aria-labelledby="h-tool">
+    <div class="section-head">
+      <span class="eyebrow">Laudo por pack</span>
+      <h2 id="h-tool">Escolha um pack e um momento da vida</h2>
+      <p class="small">A faixa azul é o SOH previsto pelo laudo rápido (P10–P90, mediana dos últimos 5 ciclos, como no laudo), sempre fora da amostra: o pack mostrado nunca participou do treino. Os pontos são as descargas de referência. Cada marcador é uma decisão do roteador.</p>
+    </div>
+    <div class="tool">
+      <nav class="rail" id="rail" aria-label="Packs"></nav>
+      <div class="stage">
+        <div class="panel chart-card">
+          <div class="chart-head">
+            <h3 id="chart-title">Pack</h3>
+            <div class="legend">
+              <span><i class="swatch" style="background:var(--accent-soft);outline:1px solid var(--accent)"></i>SOH previsto P10–P90</span>
+              <span><i class="dot" style="background:var(--ink)"></i>referência medida</span>
+            </div>
+          </div>
+          <div id="chart"></div>
+          <div class="decision-tabs" id="tabs" role="group" aria-label="Momento da decisão"></div>
+        </div>
+        <article class="panel laudo" id="laudo" aria-live="polite"></article>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-fleet">
+    <div class="section-head">
+      <span class="eyebrow">A frota inteira</span>
+      <h2 id="h-fleet">Para onde vai cada bateria, ao longo da vida</h2>
+      <p class="small" id="fleet-note"></p>
+    </div>
+    <div class="two">
+      <div class="panel card">
+        <h3>Recomendação por fase da vida</h3>
+        <div id="fleet-chart"></div>
+        <div class="legend" id="dest-legend"></div>
+      </div>
+      <div class="panel card">
+        <h3>Reuso ou reciclagem? Sensibilidade a frete e preço do novo</h3>
+        <p class="small">Fração dos 26 packs enviada a algum reuso. Linhas: frete de carga perigosa (R$/kWh). Colunas: preço dos produtos novos relativo à premissa (1,0).</p>
+        <div class="two" id="heatmaps"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-loop">
+    <div class="section-head">
+      <span class="eyebrow">Fechando o laço</span>
+      <h2 id="h-loop">O que as células aposentadas entregaram na segunda vida</h2>
+      <p class="small">No dataset, packs de primeira vida rodaram até falhar e as células sobreviventes foram remontadas. Comparamos a vida prevista no momento da aposentadoria com a vida real do pack remontado.</p>
+    </div>
+    <div class="two">
+      <div class="panel card"><div id="loop-chart"></div><div class="legend" id="loop-legend"></div></div>
+      <div class="prose">
+        <p>Nenhum cenário acerta sozinho. O <b>só fade</b> erra entre metade e duas vezes e meia a vida real; o <b>conservador</b>, que também carrega a falha abrupta do ensaio acelerado, costuma subestimar. Na maioria dos pares o real fica entre os dois — por isso o laudo mostra os dois cenários em vez de fingir um número.</p>
+        <p>São seis pares origem → pack remontado. Suficiente para ver o laço funcionar; insuficiente para calibrar. É exatamente o dado que a fase F2 do projeto precisa gerar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-health">
+    <div class="section-head">
+      <span class="eyebrow">Health Intelligence</span>
+      <h2 id="h-health">Quanto custa não ciclar: erro do SOH fora da amostra</h2>
+      <p class="small">Validação deixando packs inteiros de fora. Erro em pontos percentuais de SOH; o intervalo P10–P90 promete cobrir 80% dos casos.</p>
+    </div>
+    <div class="two">
+      <div class="panel card table-wrap" id="bench"></div>
+      <div class="prose" id="health-prose"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-prem">
+    <div class="section-head">
+      <span class="eyebrow">Premissas</span>
+      <h2 id="h-prem">A conta do roteador, com os números à vista</h2>
+      <p class="small">Nenhum dataset público traz frete, preço de material ou regra brasileira. Os valores abaixo são ilustrativos e editáveis em <span class="mono">bloom/config.py</span>; trocar qualquer um muda a recomendação — e o laudo mostra onde.</p>
+    </div>
+    <div class="panel card table-wrap" id="dest-table"></div>
+    <div class="panel card" id="eco"></div>
+  </section>
+
+  <section aria-labelledby="h-lim">
+    <div class="section-head">
+      <span class="eyebrow">Antes da banca</span>
+      <h2 id="h-lim">Limitações deste protótipo</h2>
+    </div>
+    <div class="limits">
+      <div class="limit"><b>Íon-lítio 18650, não Ni-MH</b><span>O insumo imediato da Toyota no Brasil é Ni-MH. O pipeline precisa ser repetido em packs Ni-MH do HV Recovery Center.</span></div>
+      <div class="limit"><b>Pack de 2 células, não pack automotivo</b><span>Todos os artigos do acervo também validam em célula. Falta o degrau módulo/pack com BMS real.</span></div>
+      <div class="limit"><b>Ensaio acelerado a 4–8 C, missões perto de 100 °C</b><span>A vida em destinos de 0,2–1 C é extrapolação declarada; os dois cenários delimitam o intervalo.</span></div>
+      <div class="limit"><b>Falha abrupta sem precursor elétrico</b><span>Nos ciclos antes da falha, capacidade e resistência não avisam. Sensores de gás e deformação (hardware H1/H2) têm valor justamente aqui.</span></div>
+      <div class="limit"><b>Só três packs remontados</b><span>A âncora de recomissão e seu intervalo foram calibrados com dois packs de cada vez.</span></div>
+      <div class="limit"><b>Sem EIS e sem sensor de gás</b><span>Os gates térmico e de autodescarga são proxies. Bancada com EIS rápido (~6 min, Wang et al. 2023) é o próximo passo.</span></div>
+      <div class="limit"><b>Economia com premissas ilustrativas</b><span>Preços, frete e regras (REN 1.161/2026, UL 1974) precisam de cotações e leitura reais.</span></div>
+      <div class="limit"><b>Offset de termopar por pack</b><span>Limite térmico absoluto não serve neste dataset; o gate compara cada pack com a própria linha de base.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="refs">
+      <span class="eyebrow">Referências usadas no motor</span>
+      <span>Fricke, Nascimento &amp; Viana (2023) — Randomized &amp; Recommissioned Battery Dataset, NASA/UCF · Lai et al. (2021) Energy Storage Materials 40 · Guan et al. (2025) J. Energy Storage 132 · Wei, Han &amp; Li (2022) J. Energy Storage 51 · Liu et al. (2024) J. Energy Storage 87 · Kumar, Huyn &amp; Vennelakanti (2023) npj Mater. Sustain. 1 · Seger et al. (2022) J. Energy Storage 47 · Wang, Huang &amp; Wang (2023) J. Energy Storage 63 · Li et al. (2024) Applied Thermal Eng. 240 · Geng et al. (2026) Renew. Sustain. Energy Rev. 240 · Bagherpour &amp; de Callafon (2020) IFAC-PapersOnLine 53-2.</span>
+      <span id="gen-date"></span>
+    </div>
+  </footer>
+</div>
+
+<script>
+const DATA = /*__BLOOM_DATA__*/null;
+
+const NF = (d = 0) => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (v, d = 1) => v == null ? "—" : NF(d).format(v * 100) + "%";
+const brl = v => v == null ? "—" : (v < 0 ? "−" : "") + "R$ " + NF(0).format(Math.abs(v));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const GROUP_LABEL = { regular_cc: "1ª vida · corrente constante", regular_random: "1ª vida · carga aleatória",
+  recommissioned: "1ª vida · carga muda na vida", second_life: "2ª vida · células remontadas" };
+const DEST = Object.fromEntries(DATA.destinos.map(d => [d.key, d]));
+const DEST_SHORT = { original: "Aplicação de origem", potencia: "2ª vida · potência", energia: "2ª vida · energia",
+  backup: "2ª vida · backup", reciclagem: "Reciclagem" };
+const ORDER = ["original", "potencia", "energia", "backup", "reciclagem"];
+const dcol = k => `var(--d-${k})`;
+const statusClass = s => s === "sem dado" ? "semdado" : s;
+
+let state = { scenario: "conservador", pack: "23", idx: 0 };
+try { const saved = JSON.parse(localStorage.getItem("bloom-state") || "null"); if (saved && DATA.packs[saved.pack]) state = { ...state, ...saved }; } catch (e) {}
+const save = () => { try { localStorage.setItem("bloom-state", JSON.stringify(state)); } catch (e) {} };
+
+/* ---------- findings ---------- */
+function renderFindings() {
+  const b = DATA.benchmark.filter(r => r.grupo === "todos");
+  const get = n => b.find(r => r.conjunto.startsWith(n));
+  const age = get("idade"), quick = get("laudo rápido"), full = get("ciclo completo");
+  const an = DATA.ancora_segunda_vida;
+  const loop = DATA.laco;
+  const between = loop.filter(r => {
+    const a = r["EFC previsto só fade (P50)"], b = r["EFC conservador P50"], real = r["EFC entregue na 2ª vida"];
+    return real >= Math.min(a, b) && real <= Math.max(a, b);
+  }).length;
+  const items = [
+    [`${NF(1).format(quick.MAE)} <small>p.p.</small>`, `Erro médio do SOH no laudo rápido (~20 min, sem histórico), contra ${NF(1).format(age.MAE)} p.p. só pela idade e ${NF(1).format(full.MAE)} p.p. com ciclo completo.`],
+    [`${NF(0).format(quick["cobertura P10–P90"] * 100)}<small>%</small>`, `Das medições caem dentro do intervalo P10–P90 declarado (promessa: 80%).`],
+    [`${NF(1).format(an.puro.MAE)} → ${NF(1).format(an.ancorado.MAE)} <small>p.p.</small>`, `Erro em packs remontados antes e depois de um único ensaio de recomissão. Sem ele, o laudo diz "inconclusivo".`],
+    [`${between} <small>de ${loop.length}</small>`, `Pares origem → pack remontado em que a vida real na 2ª vida ficou entre os cenários conservador e só fade.`],
+  ];
+  document.getElementById("findings").innerHTML = items.map(([big, txt]) =>
+    `<div class="finding"><span class="big">${big}</span><p>${txt}</p></div>`).join("");
+  document.getElementById("ds-summary").textContent = `${NF(0).format(DATA.dataset.ciclos)} ciclos de ${DATA.dataset.packs} packs`;
+  document.getElementById("gen-date").textContent = `Resultados gerados em ${DATA.gerado_em} por scripts/export_site.py.`;
+}
+
+/* ---------- rail ---------- */
+function finalRec(pack) {
+  const ds = DATA.packs[pack].decisoes[state.scenario];
+  return ds[ds.length - 2]?.recomendacao ?? ds[ds.length - 1].recomendacao;
+}
+function renderRail() {
+  const groups = {};
+  Object.entries(DATA.packs).forEach(([id, p]) => (groups[p.grupo] ||= []).push(id));
+  const order = ["regular_cc", "regular_random", "recommissioned", "second_life"];
+  document.getElementById("rail").innerHTML = order.map(g => `
+    <div class="rail-group">
+      <span class="eyebrow"><i class="swatch" style="background:var(--g-${g})"></i>${GROUP_LABEL[g]}</span>
+      <div class="pack-grid">${groups[g].map(id => `
+        <button class="pack-btn" id="pack-${id}" data-pack="${id}" aria-pressed="${id === state.pack}" title="Pack ${id} · recomendação aos 90% da vida: ${DEST_SHORT[finalRec(id)]}">
+          ${id}<i class="tick" style="background:${dcol(finalRec(id))}"></i></button>`).join("")}</div>
+    </div>`).join("") + `<p class="small">A barra sob cada pack mostra a recomendação aos 90% da vida.</p>`;
+  document.querySelectorAll(".pack-btn").forEach(b => b.onclick = () => { state.pack = b.dataset.pack; state.idx = 0; save(); renderAll(); });
+}
+
+/* ---------- SOH chart ---------- */
+function renderChart() {
+  const p = DATA.packs[state.pack];
+  const ds = p.decisoes[state.scenario];
+  const W = 760, H = 270, m = { l: 44, r: 14, t: 12, b: 30 };
+  const med = (arr, k = 5) => arr.map((_, i) => { const w = arr.slice(Math.max(0, i - k + 1), i + 1).slice().sort((a, b) => a - b); return w[Math.floor(w.length / 2)]; });
+  const s = { ciclo: p.serie.ciclo, p10: med(p.serie.p10), p50: med(p.serie.p50), p90: med(p.serie.p90) };
+  const xmax = p.ciclos;
+  const vals = [...s.p10, ...s.p90, ...p.referencias.soh].filter(v => v != null);
+  let ymin = Math.floor(Math.min(...vals) * 20) / 20, ymax = Math.ceil(Math.max(...vals) * 20) / 20;
+  ymax = Math.min(ymax, 1.05);
+  const x = c => m.l + (c / xmax) * (W - m.l - m.r);
+  const y = v => m.t + (1 - (v - ymin) / (ymax - ymin)) * (H - m.t - m.b);
+  const n = s.ciclo.length;
+  const band = s.ciclo.map((c, i) => `${x(c)},${y(s.p90[i])}`).join(" ") + " " +
+    s.ciclo.slice().reverse().map((c, j) => `${x(c)},${y(s.p10[n - 1 - j])}`).join(" ");
+  const line = s.ciclo.map((c, i) => `${i ? "L" : "M"}${x(c)},${y(s.p50[i])}`).join("");
+  const yt = []; for (let v = ymin; v <= ymax + 1e-9; v += (ymax - ymin) > .25 ? .1 : .05) yt.push(v);
+  const xt = []; const stepX = Math.max(50, Math.ceil(xmax / 6 / 50) * 50); for (let c = 0; c <= xmax; c += stepX) xt.push(c);
+  const markers = ds.map((dd, i) => `
+    <g class="marker ${i === state.idx ? "sel" : ""}" data-i="${i}" tabindex="0" role="button" aria-label="Decisão no ciclo ${dd.ciclo}: ${DEST_SHORT[dd.recomendacao]}">
+      <line x1="${x(dd.ciclo)}" x2="${x(dd.ciclo)}" y1="${m.t}" y2="${H - m.b}" style="stroke:${dcol(dd.recomendacao)}"></line>
+      <circle cx="${x(dd.ciclo)}" cy="${y(dd.soh.p50)}" r="${i === state.idx ? 7 : 5.5}" style="fill:${dcol(dd.recomendacao)}"></circle>
+    </g>`).join("");
+  document.getElementById("chart").innerHTML = `
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="SOH do pack ${state.pack} ao longo dos ciclos">
+      ${yt.map(v => `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"></line><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${NF(0).format(v * 100)}%</text>`).join("")}
+      ${xt.map(c => `<text x="${x(c)}" y="${H - m.b + 17}" text-anchor="middle">${c}</text>`).join("")}
+      <text x="${W - m.r}" y="${H - 2}" text-anchor="end">ciclo</text>
+      <polygon class="band" points="${band}"></polygon>
+      <path class="p50" d="${line}"></path>
+      ${p.referencias.ciclo.map((c, i) => `<circle class="refdot" cx="${x(c)}" cy="${y(p.referencias.soh[i])}" r="2.4"></circle>`).join("")}
+      ${markers}
+    </svg>`;
+  const origin = p.origem ? ` · células dos packs ${p.origem.join(" e ")}` : "";
+  document.getElementById("chart-title").textContent = `Pack ${state.pack} · ${GROUP_LABEL[p.grupo]} · ${p.correntes.map(c => NF(1).format(c) + " A").join(" → ")}${origin}`;
+  document.querySelectorAll(".marker").forEach(g => {
+    const go = () => { state.idx = +g.dataset.i; save(); renderChart(); renderTabs(); renderLaudo(); };
+    g.onclick = go; g.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
+  });
+}
+
+function renderTabs() {
+  const ds = DATA.packs[state.pack].decisoes[state.scenario];
+  document.getElementById("tabs").innerHTML = ds.map((dd, i) =>
+    `<button id="tab-${i}" data-i="${i}" aria-pressed="${i === state.idx}"><i class="dot" style="background:${dcol(dd.recomendacao)}"></i>${NF(0).format(dd.fracao * 100)}% · ciclo ${dd.ciclo}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { state.idx = +b.dataset.i; save(); renderChart(); renderTabs(); renderLaudo(); });
+}
+
+/* ---------- laudo ---------- */
+function vplBar(dd, lo, hi) {
+  const W = 150, H = 18;
+  const sx = v => ((v - lo) / (hi - lo)) * W;
+  const z = sx(0);
+  const a = sx(Math.min(0, dd.vpl_medio)), b = sx(Math.max(0, dd.vpl_medio));
+  return `<svg class="vplbar" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+    <line x1="${z}" x2="${z}" y1="0" y2="${H}" style="stroke:var(--faint)"></line>
+    <line x1="${sx(dd.vpl_p10)}" x2="${sx(dd.vpl_p90)}" y1="${H / 2}" y2="${H / 2}" style="stroke:var(--muted);stroke-width:1"></line>
+    <rect x="${a}" y="4" width="${Math.max(1, b - a)}" height="${H - 8}" style="fill:${dd.elegivel ? dcol(dd.destino) : "var(--line)"}"></rect>
+  </svg>`;
+}
+function renderLaudo() {
+  const p = DATA.packs[state.pack];
+  const dd = p.decisoes[state.scenario][state.idx];
+  const rec = dd.recomendacao;
+  const vetos = dd.gates.filter(g => g.status === "veta");
+  const inconc = dd.gates.filter(g => g.status === "inconclusivo");
+  const all = dd.destinos.flatMap(x => [x.vpl_p10, x.vpl_p90]);
+  const lo = Math.min(0, ...all), hi = Math.max(0, ...all);
+  const real = dd.soh_real == null ? "" : `<small> · medido ${pct(dd.soh_real)}${dd.rotulo_extrapolado ? " (extrap.)" : ""}</small>`;
+  const call = [];
+  if (vetos.length) call.push(`<div class="callout veto"><b>Veto de segurança:</b> ${vetos.map(g => esc(g.gate)).join(", ")}. Nenhum reuso é avaliado economicamente enquanto o veto vale.</div>`);
+  if (dd.pede_ensaio) call.push(`<div class="callout"><b>Laudo pede ensaio antes de decidir.</b> ${inconc.length ? esc(inconc.map(g => g.evidence).join(" · ")) : `O valor da informação (${brl(dd.voi)}) supera o custo do ensaio completo.`}</div>`);
+  document.getElementById("laudo").innerHTML = `
+    <div class="verdict">
+      <div class="rec">
+        <span class="eyebrow">Recomendação · ${NF(0).format(dd.fracao * 100)}% da vida · ciclo ${dd.ciclo}</span>
+        <span class="name"><i class="dot" style="background:${dcol(rec)}"></i>${esc(DEST[rec].label)}</span>
+        <span class="small">Vence em ${pct(dd.confianca, 0)} dos cenários simulados · valor da informação de um ensaio completo: ${brl(dd.voi)}</span>
+      </div>
+      <div class="kv"><span class="k">SOH P50</span><span class="v">${pct(dd.soh.p50)}${real}</span></div>
+      <div class="kv"><span class="k">Intervalo 80%</span><span class="v">${pct(dd.soh.p10)} – ${pct(dd.soh.p90)}</span></div>
+      <div class="kv"><span class="k">Vida residual no uso atual</span><span class="v">${NF(0).format(dd.rul.p50)} <small>ciclos eq. (P10 ${NF(0).format(dd.rul.p10)})</small></span></div>
+    </div>
+    ${call.join("")}
+    <div>
+      <h3 style="margin-bottom:8px">1 · Gates de segurança</h3>
+      <div class="gates">${dd.gates.map(g => `
+        <div class="gate"><span><b>${esc(g.gate)}</b>${g.source ? `<span class="src">${esc(g.source)}</span>` : ""}</span>
+          <span><span class="pill ${statusClass(g.status)}">${esc(g.status)}</span></span>
+          <span class="ev">${esc(g.evidence)}</span></div>`).join("")}</div>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">2 · Destinos · pack de referência de ${NF(0).format(DATA.economia.pack_kwh)} kWh</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>destino</th><th class="num">VPL médio</th><th>VPL (P10–P90)</th><th class="num">vida P50</th><th class="num">P(falha na garantia)</th><th class="num">prêmio de garantia</th><th class="num">P(melhor)</th></tr></thead>
+        <tbody>${ORDER.map(k => dd.destinos.find(x => x.destino === k)).map(x => `
+          <tr class="${x.elegivel ? "" : "out"} ${x.destino === rec ? "best" : ""}">
+            <td><div class="dest-name"><i class="dot" style="background:${x.elegivel ? dcol(x.destino) : "var(--line)"}"></i><span>${esc(DEST_SHORT[x.destino])}${x.elegivel ? "" : " · eliminado"}</span></div>
+              ${x.motivos_eliminação && x.motivos_eliminação.length ? `<div class="reason">${x.motivos_eliminação.map(esc).join("<br>")}</div>` : ""}</td>
+            <td class="num">${brl(x.vpl_medio)}</td>
+            <td>${vplBar(x, lo, hi)}</td>
+            <td class="num">${x.vida_anos_p50 == null ? "—" : NF(1).format(x.vida_anos_p50) + " a"}</td>
+            <td class="num">${x.p_falha_garantia == null ? "—" : pct(x.p_falha_garantia, 0)}</td>
+            <td class="num">${x.destino === "reciclagem" ? "—" : brl(x.premio_garantia)}</td>
+            <td class="num">${x.elegivel ? pct(x.p_melhor, 0) : "—"}</td>
+          </tr>`).join("")}</tbody>
+      </table></div>
+      <p class="small" style="margin-top:8px">VPL = venda do produto de 2ª vida (proporcional à vida entregue) − reembalagem − frete e certificação − prêmio de garantia + reciclagem descontada no fim. A barra mostra o VPL médio; o traço, o intervalo P10–P90 dos cenários.</p>
+    </div>`;
+}
+
+/* ---------- fleet ---------- */
+function renderFleet() {
+  const f = DATA.frota[state.scenario];
+  const W = 520, H = 230, m = { l: 36, r: 8, t: 8, b: 30 };
+  const bw = (W - m.l - m.r) / f.faixas.length;
+  const totals = f.faixas.map((_, i) => ORDER.reduce((s, k) => s + (f.contagens[k]?.[i] || 0), 0));
+  let bars = "";
+  f.faixas.forEach((lab, i) => {
+    let acc = 0;
+    ORDER.forEach(k => {
+      const v = (f.contagens[k]?.[i] || 0) / totals[i];
+      if (!v) return;
+      const h = v * (H - m.t - m.b);
+      const yy = H - m.b - acc - h;
+      bars += `<rect x="${m.l + i * bw + 6}" y="${yy}" width="${bw - 12}" height="${h}" style="fill:${dcol(k)}"><title>${DEST_SHORT[k]}: ${NF(0).format(v * 100)}%</title></rect>`;
+      if (h > 16) bars += `<text x="${m.l + i * bw + bw / 2}" y="${yy + h / 2 + 4}" text-anchor="middle" style="fill:#fff">${NF(0).format(v * 100)}%</text>`;
+      acc += h;
+    });
+    bars += `<text x="${m.l + i * bw + bw / 2}" y="${H - m.b + 17}" text-anchor="middle">${lab}</text>`;
+  });
+  const yt = [0, .5, 1].map(v => `<text x="${m.l - 6}" y="${H - m.b - v * (H - m.t - m.b) + 4}" text-anchor="end">${v * 100}%</text>`).join("");
+  document.getElementById("fleet-chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Recomendação por fase da vida">${yt}${bars}</svg>`;
+  document.getElementById("dest-legend").innerHTML = ORDER.map(k => `<span><i class="swatch" style="background:${dcol(k)}"></i>${DEST_SHORT[k]}</span>`).join("");
+  document.getElementById("fleet-note").textContent = `${f.n} decisões (26 packs × 6 momentos) no cenário ${state.scenario === "fade" ? "só fade" : "conservador"}: ${f.vetos} com veto de segurança e ${f.pede_ensaio} em que o laudo pede ensaio antes de decidir.`;
+
+  document.getElementById("heatmaps").innerHTML = DATA.grades.filter(g => g.cenario === state.scenario).map(g => `
+    <div class="heat">
+      <span class="small"><b>${esc(g.momento)}</b></span>
+      <div class="cells">
+        <span></span>${g.indice.map(v => `<span class="collab">${NF(1).format(v)}</span>`).join("")}
+        ${g.frete.map((fr, i) => `<span class="lab">R$ ${fr}</span>${g.valores[i].map(v => `<span class="cell" style="background:color-mix(in srgb, var(--heat-1) ${NF(0).format(v * 100)}%, var(--heat-0));color:${v > .55 ? "#fff" : "var(--ink)"}">${NF(0).format(v * 100)}%</span>`).join("")}`).join("")}
+      </div>
+    </div>`).join("");
+}
+
+/* ---------- closed loop ---------- */
+function renderLoop() {
+  const L = DATA.laco;
+  const W = 520, H = 230, m = { l: 40, r: 8, t: 8, b: 34 };
+  const keys = [["EFC previsto só fade (P50)", "var(--d-potencia)", "previsto · só fade"],
+                ["EFC conservador P50", "var(--d-reciclagem)", "previsto · conservador"],
+                ["EFC entregue na 2ª vida", "var(--s-veta)", "entregue (real)"]];
+  const max = Math.max(...L.flatMap(r => keys.map(k => r[k[0]])));
+  const gw = (W - m.l - m.r) / L.length, bw = (gw - 14) / 3;
+  const y = v => H - m.b - (v / max) * (H - m.t - m.b);
+  let out = "";
+  [0, 250, 500, 750].filter(v => v <= max).forEach(v => out += `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"></line><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`);
+  L.forEach((r, i) => {
+    keys.forEach(([k, c, lab], j) => out += `<rect x="${m.l + i * gw + 7 + j * bw}" y="${y(r[k])}" width="${bw - 2}" height="${H - m.b - y(r[k])}" style="fill:${c}"><title>${lab}: ${NF(0).format(r[k])} ciclos eq.</title></rect>`);
+    out += `<text x="${m.l + i * gw + gw / 2}" y="${H - m.b + 16}" text-anchor="middle">${r["pack de origem"]}→${r["pack 2ª vida"]}</text>`;
+  });
+  out += `<text x="${m.l}" y="${H - 2}">origem → pack remontado · ciclos equivalentes</text>`;
+  document.getElementById("loop-chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vida prevista e real na segunda vida">${out}</svg>`;
+  document.getElementById("loop-legend").innerHTML = keys.map(([, c, lab]) => `<span><i class="swatch" style="background:${c}"></i>${lab}</span>`).join("");
+}
+
+/* ---------- health + premissas ---------- */
+function renderStatic() {
+  const b = DATA.benchmark;
+  const sets = [...new Set(b.map(r => r.conjunto))];
+  const groups = ["todos", "regular_cc", "regular_random", "recommissioned", "second_life"];
+  const gl = { todos: "todos os packs", ...GROUP_LABEL };
+  document.getElementById("bench").innerHTML = `
+    <table><thead><tr><th>conjunto de features</th><th class="num">MAE</th><th class="num">P90 |erro|</th><th class="num">cobertura</th><th class="num">largura</th></tr></thead>
+    <tbody>${sets.map(s => { const r = b.find(x => x.conjunto === s && x.grupo === "todos"); return `<tr><td>${esc(s)}</td><td class="num">${NF(2).format(r.MAE)}</td><td class="num">${NF(1).format(r["P90 |erro|"])}</td><td class="num">${pct(r["cobertura P10–P90"], 0)}</td><td class="num">${NF(1).format(r["largura média"])}</td></tr>`; }).join("")}</tbody></table>
+    <h3 style="margin-top:14px">Laudo rápido por grupo</h3>
+    <table><thead><tr><th>grupo</th><th class="num">MAE</th><th class="num">cobertura</th></tr></thead>
+    <tbody>${groups.slice(1).map(g => { const r = b.find(x => x.conjunto === "laudo rápido" && x.grupo === g); return `<tr><td>${esc(gl[g])}</td><td class="num">${NF(2).format(r.MAE)}</td><td class="num">${pct(r["cobertura P10–P90"], 0)}</td></tr>`; }).join("")}</tbody></table>`;
+  const q = b.find(x => x.conjunto === "laudo rápido" && x.grupo === "todos");
+  const full = b.find(x => x.conjunto.startsWith("ciclo completo") && x.grupo === "todos");
+  const vr = DATA.vida_residual;
+  document.getElementById("health-prose").innerHTML = `
+    <p>O <b>laudo rápido</b> — pulso de descarga de 2 minutos, janela de carga de 7,6 a 8,4 V e 9 minutos de repouso — erra ${NF(1).format(q.MAE)} p.p. sem nenhum histórico. Com a descarga completa, o erro cai para ${NF(1).format(full.MAE)} p.p., comparável ao MAE &lt; 0,8% de Wei et al. (2022). A distância entre os dois é o preço de não ciclar.</p>
+    <p><b>Packs remontados quebram o modelo:</b> a capacidade segue a pior célula, enquanto resistência e aquecimento refletem a média das duas (o "efeito barril" de Wang et al. 2023). O modelo superestima o SOH desses packs. A resposta no desenho é um gate de procedência e um único ensaio de recomissão como âncora.</p>
+    <p><b>A vida residual é a parte menos previsível:</b> erro médio de ${NF(0).format(vr.MAE)} ciclos equivalentes, com intervalo médio de ${NF(0).format(vr["largura média"])}. A falha dos packs é abrupta e os sinais elétricos não avisam — é onde sensores de gás e deformação têm valor.</p>`;
+
+  const D = DATA.destinos;
+  document.getElementById("dest-table").innerHTML = `<table>
+    <thead><tr><th>destino</th><th class="num">SOH mín.</th><th class="num">sai com</th><th class="num">R máx.</th><th class="num">taxa C</th><th class="num">ciclos/ano</th><th class="num">produto novo</th><th class="num">fator de preço</th><th class="num">reembalagem</th><th class="num">garantia</th></tr></thead>
+    <tbody>${D.map(d => `<tr><td><div class="dest-name"><i class="dot" style="background:${dcol(d.key)}"></i>${esc(d.label)}</div></td>
+      <td class="num">${d.kind === "reuso" ? pct(d.soh_min, 0) : "—"}</td><td class="num">${d.kind === "reuso" ? pct(d.soh_eol, 0) : "—"}</td>
+      <td class="num">${d.r_growth_max == null ? "—" : NF(2).format(d.r_growth_max) + "×"}</td><td class="num">${d.kind === "reuso" ? NF(1).format(d.c_rate) : "—"}</td>
+      <td class="num">${d.cycles_per_year || "—"}</td><td class="num">${d.new_product_brl_kwh ? "R$ " + NF(0).format(d.new_product_brl_kwh) + "/kWh" : "—"}</td>
+      <td class="num">${d.price_factor ? NF(2).format(d.price_factor) : "—"}</td><td class="num">${d.repack_brl_kwh ? "R$ " + d.repack_brl_kwh + "/kWh" : "—"}</td>
+      <td class="num">${d.warranty_years ? d.warranty_years + " a" : "—"}</td></tr>`).join("")}</tbody></table>`;
+  const e = DATA.economia;
+  const labels = { pack_kwh: ["pack de referência", v => NF(0).format(v) + " kWh"], new_price_index: ["índice de preço do novo", v => NF(2).format(v)],
+    logistics_brl_kwh: ["frete de carga perigosa", v => `R$ ${v}/kWh`], certification_brl_kwh: ["certificação individual", v => `R$ ${v}/kWh`],
+    bloom_test_brl_pack: ["laudo rápido BLOOM", v => `R$ ${v}/pack`], reference_test_brl_pack: ["ensaio de referência completo", v => `R$ ${v}/pack`],
+    material_value_brl_kwh: ["valor de material (NMC)", v => `R$ ${v}/kWh`], recycling_process_brl_kwh: ["processo de reciclagem", v => `R$ ${v}/kWh`],
+    discount_rate: ["taxa de desconto", v => pct(v, 0) + " a.a."], warranty_loading: ["carregamento da garantia", v => NF(2).format(v) + "×"] };
+  document.getElementById("eco").innerHTML = `<h3>Premissas econômicas</h3><div class="verdict" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">${Object.entries(labels).filter(([k]) => k in e).map(([k, [l, f]]) =>
+    `<div class="kv"><span class="k">${l}</span><span class="v">${f(e[k])}</span></div>`).join("")}
+    <div class="kv"><span class="k">fade calendárico</span><span class="v">${pct(DATA.calendario, 0)} de SOH/ano</span></div></div>`;
+}
+
+function renderAll() {
+  document.querySelectorAll(".pack-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.pack === state.pack));
+  const n = DATA.packs[state.pack].decisoes[state.scenario].length;
+  if (state.idx >= n) state.idx = 0;
+  renderChart(); renderTabs(); renderLaudo(); renderFleet();
+}
+document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+  state.scenario = b.dataset.sc; save();
+  document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderRail(); renderAll();
+});
+document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x.dataset.sc === state.scenario));
+renderFindings(); renderRail(); renderStatic(); renderLoop(); renderAll();
+</script>
