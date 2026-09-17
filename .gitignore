@@ -1,0 +1,23 @@
+# Referências (artigos e documentos de apoio - não versionados)
+referencias/
+
+# Dataset bruto (3.2 GB)
+battery_alt_dataset/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Artefatos gerados localmente
+data/processed/*.parquet
+*.log
+
+# SO / editores
+.DS_Store
+__MACOSX/
+Thumbs.db
+.vscode/
+.idea/
