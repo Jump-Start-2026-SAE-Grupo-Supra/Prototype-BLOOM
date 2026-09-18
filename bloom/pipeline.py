@@ -256,3 +256,87 @@ def reuse_share_grid(engine: Engine, results_cycles: list[tuple[str, int]], logi
             out.append({"frete R$/kWh": lg, "índice de preço do novo": price,
                         "fração para reuso": float(np.mean([r != "reciclagem" for r in recs]))})
     return pd.DataFrame(out)
+
+
+# --------------------------------------------------------------------------------------------
+# 4. Janela de decisão e valor do reparo
+# --------------------------------------------------------------------------------------------
+def decision_windows(engine: Engine, life_model: str = "conservador", n_points: int = 14,
+                     n_samples: int = 1200) -> pd.DataFrame:
+    """Até que ponto da vida um destino de REUSO ainda vence a reciclagem.
+
+    Este é o teste que reorganiza o produto. A sensibilidade (`reuse_share_grid`) mostrou que na
+    aposentadoria a reciclagem domina; logo, se a decisão de destino tem valor econômico, ele está
+    ANTES. Aqui medimos, pack a pack, onde fica essa fronteira — a *janela de realocação* — em vez
+    de assumir que a decisão acontece quando o pack chega ao pátio.
+    """
+    st = Settings(life_model=life_model, n_samples=n_samples)
+    fracs = tuple(np.linspace(0.08, 0.97, n_points))
+    rows = []
+    for pack in sorted(engine.d["pack"].unique()):
+        n = engine.d.loc[engine.d["pack"] == pack, "cycle"].max()
+        traj = []
+        for c in engine.decision_points(pack, fracs):
+            r = engine.laudo(pack, c, st)
+            traj.append({"fracao": float(c / n), "ciclo": int(c), "rec": r["recomendacao"],
+                         "conf": float(r["confianca"]), "voi": float(r["valor_da_informacao"])})
+        reuse = [t["fracao"] for t in traj if t["rec"] != "reciclagem"]
+        rows.append({
+            "pack": pack,
+            "grupo": str(engine.d.loc[engine.d["pack"] == pack, "group"].iloc[0]),
+            "ciclos": int(n),
+            "fecha_em": float(max(reuse)) if reuse else float("nan"),
+            "abre_em": float(min(reuse)) if reuse else float("nan"),
+            "pontos_reuso": len(reuse),
+            "pontos": len(traj),
+            "sempre_reciclagem": not reuse,
+            "trajetoria": traj,
+        })
+    return pd.DataFrame(rows)
+
+
+def repair_value(engine: Engine, pack: str, cycle: int, uplift_pp=(0, 2, 4, 6, 8, 10, 15),
+                 life_model: str = "conservador", n_samples: int = 2000) -> pd.DataFrame:
+    """Quanto vale pagar para reparar o pack ANTES de decidir o destino.
+
+    Reparo e remanufatura não são destinos: são AÇÕES que mudam o ativo, e só depois se decide
+    para onde ele vai. Modelamos a ação como um ganho de SOH (`uplift`) aplicado aos três quantis
+    — trocar o módulo pior puxa a capacidade do pack, que segue a pior célula ("efeito barril",
+    Wang et al. 2023 — o mesmo mecanismo observado nos packs remontados deste dataset).
+
+    Os gates permanecem: um veto de segurança não pode ser comprado com reparo.
+
+    A saída é o **break-even** (o preço máximo defensável do reparo), não um preço inventado.
+    O uplift também não é calibrado — é varrido. Calibrá-lo exige packs reparados, que este
+    dataset não tem: é o dado que a fase F2 precisa gerar.
+    """
+    st = Settings(life_model=life_model, n_samples=n_samples)
+    snap, _ = engine.snapshot(pack, cycle)
+    base = route(snap, engine.stress, st)
+    base_v = max(dd["vpl_medio"] for dd in base["destinos"] if dd["elegivel"])
+    out = []
+    for u in uplift_pp:
+        s2 = replace(snap, soh_q=tuple(min(1.0, q + u / 100) for q in snap.soh_q))
+        r2 = route(s2, engine.stress, st)
+        v2 = max(dd["vpl_medio"] for dd in r2["destinos"] if dd["elegivel"])
+        out.append({"pack": pack, "ciclo": int(cycle), "uplift_pp": u,
+                    "destino_base": base["recomendacao"], "destino_reparado": r2["recomendacao"],
+                    "vpl_base": base_v, "vpl_reparado": v2,
+                    "break_even_reparo_brl": v2 - base_v,
+                    "muda_destino": bool(r2["recomendacao"] != base["recomendacao"])})
+    return pd.DataFrame(out)
+
+
+def repair_frontier(engine: Engine, fracs=(0.3, 0.6, 0.9), uplift_pp=(0, 4, 8, 15),
+                    life_model: str = "conservador") -> pd.DataFrame:
+    """`repair_value` varrido por momento da vida, para toda a frota."""
+    rows = []
+    for pack in sorted(engine.d["pack"].unique()):
+        n = engine.d.loc[engine.d["pack"] == pack, "cycle"].max()
+        for f in fracs:
+            c = engine.decision_points(pack, (f,))[0]
+            df = repair_value(engine, pack, c, uplift_pp, life_model, n_samples=1200)
+            df["fracao"] = c / n
+            df["momento"] = f"{int(f * 100)}% da vida"
+            rows.append(df)
+    return pd.concat(rows, ignore_index=True)

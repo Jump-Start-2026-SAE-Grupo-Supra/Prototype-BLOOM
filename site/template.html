@@ -261,6 +261,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     <a href="#equacoes">As equações</a><span class="sep">·</span>
     <a href="#laudo-sec">Laudo por pack</a><span class="sep">·</span>
     <a href="#frota">A frota inteira</a><span class="sep">·</span>
+    <a href="#janela">A janela</a><span class="sep">·</span>
     <a href="#laco">Fechando o laço</a><span class="sep">·</span>
     <a href="#erro">Erro do modelo</a><span class="sep">·</span>
     <a href="#premissas">Medido vs. suposto</a><span class="sep">·</span>
@@ -504,6 +505,39 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     </div>
   </section>
 
+  <section id="janela" aria-labelledby="h-win">
+    <div class="section-head">
+      <span class="eyebrow">O achado que reorganizou o produto</span>
+      <h2 id="h-win">A janela de realocação: até quando ainda vale reusar</h2>
+      <p class="lede">A sensibilidade acima mostra que na aposentadoria a reciclagem domina. Se a decisão de destino tem valor, ele está <b>antes</b>. Aqui medimos onde fica essa fronteira, varrendo 14 pontos da vida de cada pack: o último ponto em que algum destino de reuso ainda vence a reciclagem.</p>
+    </div>
+    <div class="panel card">
+      <div class="chart-head">
+        <h3>Onde a janela fecha, pack a pack</h3>
+        <div class="legend" id="win-legend"></div>
+      </div>
+      <div id="win-chart"></div>
+      <p class="small" id="win-note"></p>
+      <div class="howto">
+        <b>A leitura que interessa</b>
+        <span>O processo atual decide quando o pack volta ao pátio, perto de 100% da vida — depois de a janela ter fechado para quase toda a frota. A distância entre a mediana e essa borda é o espaço em que uma decisão automatizada cria valor. Packs sem janela nenhuma aparecem na contagem à esquerda: três dos quatro são justamente os remontados de 2ª vida, que os gates G5/G6 bloqueiam por incerteza — o motor se recusa a recomendar reuso de um ativo cuja condição ele não consegue provar.</span>
+      </div>
+    </div>
+    <div class="two">
+      <div class="panel card">
+        <h3>Quanto vale pagar pelo reparo, antes de decidir o destino</h3>
+        <p class="small">Reparo e remanufatura não são destinos: são <b>ações</b> que mudam o ativo, e só depois se decide para onde ele vai. Modelamos a ação como um ganho de SOH aplicado aos três quantis — trocar o módulo pior puxa a capacidade, que segue a pior célula (o “efeito barril”). Os gates permanecem: <b>um veto de segurança não pode ser comprado com reparo</b>.</p>
+        <div id="rep-chart"></div>
+        <p class="small" id="rep-note"></p>
+      </div>
+      <div class="prose">
+        <p><b>O break-even, não o preço.</b> A saída é quanto vale pagar pela intervenção, porque um preço de reparo exigiria uma cotação que não temos. O <i>uplift</i> de SOH também não é calibrado: é varrido de 0 a 15 p.p. Não há packs reparados neste dataset — calibrar o ganho é exatamente o dado que a fase F2 precisa gerar.</p>
+        <p><b>Confirmação independente.</b> O valor do reparo evapora antes dos 60% da vida, pelo mesmo motivo econômico que fecha a janela de reuso, mas por um caminho de cálculo diferente. Dois mecanismos distintos apontando para a mesma conclusão é mais forte que um só.</p>
+        <p class="small">Observação honesta: o <b>melhor caso</b> da frota nem sempre acompanha a mediana — há packs que degradam tarde e para os quais reparar vale mais depois. A mediana é a regra; a cauda é o argumento para decidir pack a pack em vez de por regra de calendário.</p>
+      </div>
+    </div>
+  </section>
+
   <section id="laco" aria-labelledby="h-loop">
     <div class="section-head">
       <span class="eyebrow">Fechando o laço</span>
@@ -627,7 +661,7 @@ function renderFindings() {
     [`${NF(1).format(quick.MAE)} <small>p.p.</small>`, `Erro médio do SOH no laudo rápido (~20 min, sem histórico), contra ${NF(1).format(age.MAE)} p.p. só pela idade e ${NF(1).format(full.MAE)} p.p. com ciclo completo.`],
     [`${NF(0).format(quick["cobertura P10–P90"] * 100)}<small>%</small>`, `Das medições caem dentro do intervalo P10–P90 declarado (promessa: 80%). Mede se a incerteza é honesta.`],
     [`${NF(1).format(an.puro.MAE)} → ${NF(1).format(an.ancorado.MAE)} <small>p.p.</small>`, `Erro em packs remontados antes e depois de um único ensaio de recomissão. Sem ele, o laudo diz “inconclusivo”.`],
-    [`${between} <small>de ${loop.length}</small>`, `Pares origem → pack remontado em que a vida real na 2ª vida ficou entre os cenários conservador e só fade.`],
+    [(() => { const v = (DATA.janela?.conservador || []).filter(d => d.fecha_em != null).map(d => d.fecha_em).sort((a, b) => a - b); return v.length ? `${NF(0).format(quantile(v, .5) * 100)}<small>% da vida</small>` : `${between} <small>de ${loop.length}</small>`; })(), `Onde a janela de reuso fecha, na mediana dos packs (cenário conservador). O processo atual decide perto de 100%. ${between} de ${loop.length} pares de 2ª vida ficaram entre os dois cenários de vida.`],
   ];
   document.getElementById("findings").innerHTML = items.map(([big, txt]) =>
     `<div class="finding"><span class="big">${big}</span><p>${txt}</p></div>`).join("");
@@ -995,11 +1029,97 @@ function renderStatic() {
       <td class="num">${d.warranty_years ? d.warranty_years + " a" : "—"}</td></tr>`).join("")}</tbody></table>`;
 }
 
+/* ---------- janela de realocação e valor do reparo ---------- */
+function quantile(sorted, q) {
+  if (!sorted.length) return NaN;
+  const pos = (sorted.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+}
+
+function renderJanela() {
+  const W = 1080, H = 176, m = { l: 118, r: 34, t: 40, b: 40 };
+  const iw = W - m.l - m.r;
+  const x = f => m.l + f * iw;
+  const rows = [
+    { k: "conservador", c: "var(--d-original)", lab: "Conservador" },
+    { k: "fade", c: "var(--d-energia)", lab: "Só fade" },
+  ];
+  let out = "";
+  out += `<rect x="${x(0.9)}" y="${m.t - 14}" width="${iw * 0.1 + 8}" height="${H - m.t - m.b + 34}" rx="3" style="fill:var(--s-veta);fill-opacity:.10;stroke:var(--s-veta);stroke-width:1;stroke-dasharray:3 3"></rect>`;
+  out += `<text x="${x(0.95)}" y="${m.t - 20}" text-anchor="middle" style="fill:var(--s-veta);font-weight:600">processo atual</text>`;
+  [0, .2, .4, .6, .8, 1].forEach(f => {
+    out += `<line class="gridline" x1="${x(f)}" x2="${x(f)}" y1="${m.t - 10}" y2="${H - m.b + 6}"></line>`;
+    out += `<text x="${x(f)}" y="${H - m.b + 22}" text-anchor="middle">${NF(0).format(f * 100)}%</text>`;
+  });
+  out += `<text x="${m.l + iw / 2}" y="${H - 2}" text-anchor="middle">ponto da vida do pack em que a janela de reuso se fecha</text>`;
+  rows.forEach((r, ri) => {
+    const rec = DATA.janela[r.k] || [];
+    const vals = rec.filter(d => d.fecha_em !== null && d.fecha_em !== undefined).map(d => d.fecha_em).sort((a, b) => a - b);
+    const none = rec.length - vals.length;
+    const yy = m.t + ri * 68;
+    out += `<line x1="${m.l}" x2="${m.l + iw}" y1="${yy}" y2="${yy}" style="stroke:var(--line);stroke-width:1"></line>`;
+    out += `<text x="${m.l - 12}" y="${yy - 3}" text-anchor="end" style="fill:var(--ink);font-weight:600">${r.lab}</text>`;
+    out += `<text x="${m.l - 12}" y="${yy + 13}" text-anchor="end" style="fill:var(--faint)">${none} sem janela</text>`;
+    const seen = {};
+    rec.forEach(d => {
+      if (d.fecha_em === null || d.fecha_em === undefined) return;
+      const key = Math.round(d.fecha_em * 40);
+      seen[key] = (seen[key] || 0) + 1;
+      const off = (((seen[key] - 1) % 5) * 7 - 14) * .6;
+      out += `<circle class="marker" cx="${x(d.fecha_em)}" cy="${yy + off}" r="4.2" style="fill:${r.c};fill-opacity:.62;stroke:var(--surface);stroke-width:1"><title>pack ${d.pack} (${d.grupo}) · fecha em ${NF(0).format(d.fecha_em * 100)}% da vida</title></circle>`;
+    });
+    const med = quantile(vals, .5), q1 = quantile(vals, .25), q3 = quantile(vals, .75);
+    out += `<line x1="${x(med)}" x2="${x(med)}" y1="${yy - 24}" y2="${yy + 24}" style="stroke:${r.c};stroke-width:2.2;stroke-dasharray:5 3"></line>`;
+    out += `<text x="${x(med)}" y="${yy - 29}" text-anchor="middle" style="fill:${r.c};font-weight:600">mediana ${NF(0).format(med * 100)}% · quartis ${NF(0).format(q1 * 100)}–${NF(0).format(q3 * 100)}%</text>`;
+  });
+  document.getElementById("win-chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ponto da vida em que a janela de reuso fecha, para cada pack, nos dois cenários de vida">${out}</svg>`;
+  document.getElementById("win-legend").innerHTML = rows.map(r => `<span><i class="swatch" style="background:${r.c}"></i>${r.lab}</span>`).join("")
+    + `<span><i class="swatch" style="background:var(--s-veta);opacity:.35"></i>onde o processo decide hoje</span>`;
+  const cur = (DATA.janela[state.scenario] || []);
+  const cv = cur.filter(d => d.fecha_em !== null && d.fecha_em !== undefined).map(d => d.fecha_em).sort((a, b) => a - b);
+  document.getElementById("win-note").textContent =
+    `Cenário ${state.scenario === "fade" ? "só fade" : "conservador"}: ${cv.length} dos ${cur.length} packs abrem janela, e ela fecha na mediana em ${NF(0).format(quantile(cv, .5) * 100)}% da vida. Cada ponto é um pack; 14 pontos de decisão por pack, todos fora da amostra.`;
+}
+
+function renderReparo() {
+  const rec = (DATA.reparo[state.scenario] || []).filter(r => r.uplift_pp === 4);
+  const moments = [...new Set(rec.map(r => r.momento))];
+  const agg = moments.map(mo => {
+    const v = rec.filter(r => r.momento === mo).map(r => r.break_even_reparo_brl).sort((a, b) => a - b);
+    return { mo, med: quantile(v, .5), max: Math.max(...v), muda: rec.filter(r => r.momento === mo && r.muda_destino).length, n: v.length };
+  });
+  const W = 520, H = 210, m = { l: 92, r: 84, t: 14, b: 40 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const max = Math.max(1, ...agg.map(a => a.max)) * 1.08;
+  const bh = ih / agg.length, bar = 22;
+  let out = "";
+  [0, .25, .5, .75, 1].forEach(f => {
+    const xx = m.l + f * iw;
+    out += `<line class="gridline" x1="${xx}" x2="${xx}" y1="${m.t - 4}" y2="${m.t + ih + 4}"></line>`;
+    out += `<text x="${xx}" y="${m.t + ih + 20}" text-anchor="middle">${NF(0).format(f * max)}</text>`;
+  });
+  out += `<text x="${m.l + iw / 2}" y="${H - 4}" text-anchor="middle">break-even do reparo, R$ por pack de ${NF(0).format(DATA.economia.pack_kwh)} kWh (ganho de 4 p.p. de SOH)</text>`;
+  agg.forEach((a, i) => {
+    const cy = m.t + bh * i + bh / 2, w = Math.max(a.med / max * iw, 1.5), mx = m.l + a.max / max * iw;
+    out += `<text x="${m.l - 10}" y="${cy + 4}" text-anchor="end" style="fill:var(--ink);font-weight:600">${a.mo}</text>`;
+    out += `<rect x="${m.l}" y="${cy - bar / 2}" width="${w}" height="${bar}" rx="2" style="fill:var(--d-original)"><title>mediana dos ${a.n} packs</title></rect>`;
+    out += `<line x1="${mx}" x2="${mx}" y1="${cy - bar / 2 - 4}" y2="${cy + bar / 2 + 4}" style="stroke:var(--d-energia);stroke-width:2"><title>melhor caso da frota</title></line>`;
+    out += `<text x="${mx}" y="${cy - bar / 2 - 8}" text-anchor="middle" style="fill:var(--d-energia)">máx ${NF(0).format(a.max)}</text>`;
+    out += `<text x="${m.l + w + 7}" y="${cy + 4}" style="fill:var(--ink);font-weight:600">R$ ${NF(0).format(a.med)}</text>`;
+    out += `<text x="${m.l + iw + 12}" y="${cy + 4}">${a.muda}/${a.n} mudam</text>`;
+  });
+  document.getElementById("rep-chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Break-even do reparo por momento da vida">${out}</svg>`;
+  const zero = agg.filter(a => a.med <= 0).map(a => a.mo);
+  document.getElementById("rep-note").textContent = zero.length
+    ? `Barra cheia: mediana dos 26 packs. Marca fina: melhor caso da frota. Em ${zero.join(" e ")} a mediana é R$ 0 — para o pack típico, não se paga nada pelo reparo.`
+    : `Barra cheia: mediana dos 26 packs. Marca fina: melhor caso da frota.`;
+}
+
 function renderAll() {
   document.querySelectorAll(".pack-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.pack === state.pack));
   const n = DATA.packs[state.pack].decisoes[state.scenario].length;
   if (state.idx >= n) state.idx = 0;
-  renderChart(); renderTabs(); renderLaudo(); renderFleet();
+  renderChart(); renderTabs(); renderLaudo(); renderFleet(); renderJanela(); renderReparo();
 }
 document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
   state.scenario = b.dataset.sc; save();

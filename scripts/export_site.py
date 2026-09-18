@@ -152,6 +152,10 @@ def build_data() -> dict:
         "calendario": Settings().calendar_fade_per_year,
         "packs": packs, "frota": fleet, "grades": grids,
         "laco": P.closed_loop(engine).to_dict(orient="records"),
+        "janela": {lm: P.decision_windows(engine, life_model=lm).to_dict(orient="records")
+                   for lm in SCENARIOS},
+        "reparo": {lm: P.repair_frontier(engine, life_model=lm).to_dict(orient="records")
+                   for lm in SCENARIOS},
     })
 
 
