@@ -24,7 +24,21 @@ Os dois primeiros testes de falsificação do dossiê (§5), com dados:
    Depende do momento. Na aposentadoria (~90% da vida) **a reciclagem domina** em quase toda a grade de
    sensibilidade — em linha com Guan et al. (2025) e com o caso Relectrify. Aos 30% da vida, 31–88% dos packs
    vão para reuso: o que pesa é o **momento** da decisão e o preço do produto novo que o reuso substitui
-   (o frete pesa menos). O produto é a decisão no momento certo, não a triagem do que já sobrou.
+   (o frete pesa menos). O produto é o destino de maior valor **a cada momento** da vida e o ponto em que ele deixa de valer — quando e para onde são uma decisão só —, não a triagem do que já sobrou.
+
+3. **Existe uma janela de realocação mensurável, e onde ela fecha?** (`pipeline.decision_windows`)
+   Sim. Varrendo 14 pontos da vida de cada pack, a janela em que algum destino de reuso ainda vence a
+   reciclagem fecha na **mediana em 28% da vida** (quartis 22%–35%) no cenário conservador, e em **49%**
+   (quartis 35%–76%) no cenário só fade. Quatro packs nunca abrem janela — três deles são justamente os
+   remontados de 2ª vida, que os gates G5/G6 bloqueiam por incerteza. O processo atual decide em ~100%
+   da vida; o valor está entre 28% e 49%.
+
+4. **Vale pagar por reparo antes de decidir o destino?** (`pipeline.repair_value`)
+   Também tem janela, e ela fecha antes. Para um pack de 10 kWh no cenário conservador, um ganho de
+   4 p.p. de SOH vale, na **mediana, R$ 466** aos 30% da vida (máx. R$ 940; muda o destino em 9 de 26
+   packs) e **R$ 0** aos 60% e aos 90% — não se paga nada para reparar um pack aposentado. O motor
+   chega sozinho ao que a intuição de engenharia diz, por um mecanismo independente do item 3.
+   O *uplift* não é calibrado: é varrido, e a saída é o **break-even**, não um preço inventado.
 
 ## Arquitetura
 
@@ -38,7 +52,8 @@ data/processed/cycles.parquet  ── 9.613 ciclos × 51 colunas
         ├─ bloom/safety.py    gates G1–G6: vetos e restrições com evidência numérica
         ├─ bloom/router.py    VPL por destino sob incerteza, garantia, valor da informação, laudo
         ├─ bloom/config.py    destinos e premissas econômicas explícitas (ilustrativas)
-        └─ bloom/pipeline.py  orquestração, laço fechado com a 2ª vida, sensibilidade
+        └─ bloom/pipeline.py  orquestração, laço fechado, sensibilidade,
+                              janela de decisão e break-even do reparo
                 │
                 ├─ notebooks/BLOOM_prototipo.ipynb
                 └─ scripts/export_site.py → docs/index.html
@@ -51,6 +66,8 @@ data/processed/cycles.parquet  ── 9.613 ciclos × 51 colunas
 | Lifecycle Router | `router.py` | Guan et al. 2025 §4.2.2; Kumar et al. 2023 |
 | Garantia como produto | `router.py` (prêmio) | Dossiê §3.4 |
 | Battery Passport | gate de procedência G6, âncora de recomissão | Guan et al. 2025 §3 |
+| Janela de realocação | `pipeline.decision_windows` | achado próprio (F0) |
+| Reparo/remanufatura como **ação** | `pipeline.repair_value` (break-even) | Wang et al. 2023 (efeito barril) |
 
 ## Como rodar
 
@@ -97,6 +114,10 @@ para a fonte do sistema se estiver offline).
 - **Só três packs remontados** — a calibração da segunda vida é frágil.
 - **Sem EIS nem sensor de gás** — gates térmico e de autodescarga são proxies.
 - **Economia com premissas ilustrativas** (`bloom/config.py`) — preços, frete e regras brasileiras
-  precisam de fonte.
+  precisam de fonte. Com as premissas atuais o VPL da reciclagem é **negativo** (−R$ 300 por pack de
+  10 kWh): o motor está escolhendo o menor prejuízo, não o maior lucro. O valor de material é o
+  número que decide o sinal, e é o primeiro a cotar.
+- **Reparo não é calibrado** — o *uplift* de SOH é varrido, não medido. Não há packs reparados neste
+  dataset; a saída é break-even, e calibrá-la é trabalho de F2.
 
 As referências e a análise que orientaram o desenho estão em `referencias/` (não versionada).
