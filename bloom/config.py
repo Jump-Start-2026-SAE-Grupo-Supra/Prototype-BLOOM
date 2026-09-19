@@ -8,7 +8,7 @@ auditável. Valores em R$ de 2026, por kWh nominal, salvo indicação.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, replace
 
 
 @dataclass(frozen=True)
@@ -93,6 +93,9 @@ class SafetyThresholds:
 class Settings:
     economics: Economics = field(default_factory=Economics)
     safety: SafetyThresholds = field(default_factory=SafetyThresholds)
+    # Destinos comparados pelo roteador. Antes era a lista global; virou parte do Settings para que
+    # cada perfil de produto (ver PROFILES) tenha os seus preços e a sua lista de destinos aplicáveis.
+    destinations: tuple = field(default_factory=lambda: tuple(DESTINATIONS))
     n_samples: int = 4000
     seed: int = 7
     # "fade": vida no destino limitada só pelo fade de capacidade extrapolado para a taxa C do destino.
@@ -100,3 +103,55 @@ class Settings:
     #  sem creditar vida extra abaixo da menor corrente ensaiada.
     life_model: str = "conservador"
     calendar_fade_per_year: float = 0.02  # perda de SOH por ano parado (o dataset não mede; premissa)
+
+
+# --------------------------------------------------------------------------------------------
+# Perfis de produto (revisão de premissas de 18/09/2026 — ver PREMISSAS.md)
+# --------------------------------------------------------------------------------------------
+# A premissa original de preço do "produto novo equivalente" (`new_product_brl_kwh`) era única para
+# todo pack. A pesquisa de preços mostrou que ela depende do produto: o que o destino "continuar na
+# origem" substitui é uma PEÇA DE REPOSIÇÃO, cujo preço por kWh muda ordens de grandeza entre um pack
+# de elétrico (grande, energético) e um pack de híbrido (pequeno, de potência).
+#
+#   perfil            pack       preço de reposição       fonte
+#   v0_ilustrativo    10 kWh     R$ 900/kWh               premissa original (mantida p/ reprodutibilidade)
+#   bev_revisado      10 kWh     R$ 1.250/kWh             BYD Dolphin R$ 60 mil/44,9 kWh e Plus R$ 70 mil/60 kWh
+#                                                         = R$ 1.167–1.336/kWh (imprensa; confiança média)
+#   hev_nimh_corolla  1,3 kWh    R$ 13.077/kWh            Corolla Hybrid: pack novo ~R$ 17 mil (imprensa; média)
+#
+# Sistema estacionário instalado (destino "energia"): R$ 1.800 -> R$ 3.100/kWh, ponto médio da faixa
+# R$ 2.700–3.500/kWh de 2026 (imprensa setorial; confiança média).
+#
+# O que NÃO foi alterado, e por quê:
+#   * repack_brl_kwh (R$ 200–450): a referência NREL (US$ 22/kWh) cobre repropósito e teste, não gabinete,
+#     BMS e integração do produto novo; o escopo difere, então não valida nem refuta a premissa.
+#   * material_value_brl_kwh (R$ 110): confirmado dentro de R$ 108–179/kWh, mas a fração paga pelo
+#     reciclador (60%) é suposição do time.
+#   * potência (R$ 1.400) e backup (R$ 600): sem preço encontrado.
+
+def _replace_dest(dests, key, **kw):
+    return tuple(replace(d, **kw) if d.key == key else d for d in dests)
+
+
+def profile_settings(name: str, **overrides) -> "Settings":
+    """Settings de um perfil de produto. `overrides` vão para Settings (ex.: life_model, n_samples)."""
+    base = tuple(DESTINATIONS)
+    if name == "v0_ilustrativo":
+        st = Settings()
+    elif name == "bev_revisado":
+        dests = _replace_dest(base, "original", new_product_brl_kwh=1250)
+        dests = _replace_dest(dests, "energia", new_product_brl_kwh=3100)
+        st = Settings(destinations=dests)
+    elif name == "hev_nimh_corolla":
+        # Sem 2ª vida estacionária: pack de 1,3 kWh é ~130x menor que um sistema comercial e não há preço.
+        # "original" vira REPOSIÇÃO REMANUFATURADA: mesmo produto, vendido a ~53% do novo (R$ 8–10 mil / R$ 17 mil).
+        orig = replace(next(d for d in base if d.key == "original"),
+                       label="Remanufatura para reposição (mesma aplicação, híbrido)",
+                       new_product_brl_kwh=13077, price_factor=0.53, ref_life_years=8, warranty_years=1, moves=True)
+        recic = next(d for d in base if d.key == "reciclagem")
+        # Valor de metal contido em NiMH: R$ 911–1.274/kWh; a 60% pago pelo reciclador -> ~R$ 650/kWh.
+        eco = replace(Economics(), pack_kwh=1.3, material_value_brl_kwh=650)
+        st = Settings(economics=eco, destinations=(orig, recic))
+    else:
+        raise KeyError(name)
+    return replace(st, **overrides) if overrides else st

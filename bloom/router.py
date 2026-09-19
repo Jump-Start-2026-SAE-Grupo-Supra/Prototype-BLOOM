@@ -20,7 +20,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from .config import DEST, DESTINATIONS, Settings
+from .config import DEST, Settings
 from .health import sample_from_quantiles
 from .safety import GateResult, blocked_destinations
 
@@ -102,7 +102,7 @@ def route(snap: Snapshot, stress: StressModel, settings: Settings) -> dict:
     recycle_net = kwh * (eco.material_value_brl_kwh - eco.recycling_process_brl_kwh - eco.logistics_brl_kwh)
 
     table, samples = [], {}
-    for d in DESTINATIONS:
+    for d in settings.destinations:
         row = {"destino": d.key, "rótulo": d.label, "critério": d.criterion, "motivos_eliminação": []}
         if d.kind == "reciclagem":
             v = np.full(n, recycle_net)
