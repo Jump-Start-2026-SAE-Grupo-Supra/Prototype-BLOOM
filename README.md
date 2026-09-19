@@ -28,8 +28,8 @@ Os dois primeiros testes de falsificação do dossiê (§5), com dados:
 
 3. **Existe uma janela de realocação mensurável, e onde ela fecha?** (`pipeline.decision_windows`)
    Sim. Varrendo 14 pontos da vida de cada pack, a janela em que algum destino de reuso ainda vence a
-   reciclagem fecha na **mediana em 28% da vida** (quartis 22%–35%) no cenário conservador, e em **49%**
-   (quartis 35%–76%) no cenário só fade. Quatro packs nunca abrem janela — três deles são justamente os
+   reciclagem fecha na **mediana em 28% da vida** (quartis 22%–33%) no cenário conservador, e em **49%**
+   (quartis 35%–73%) no cenário só fade. Quatro packs nunca abrem janela — três deles são justamente os
    remontados de 2ª vida, que os gates G5/G6 bloqueiam por incerteza. O processo atual decide em ~100%
    da vida; o valor está entre 28% e 49%.
 
