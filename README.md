@@ -28,10 +28,13 @@ Os dois primeiros testes de falsificação do dossiê (§5), com dados:
 
 3. **Existe uma janela de realocação mensurável, e onde ela fecha?** (`pipeline.decision_windows`)
    Sim. Varrendo 14 pontos da vida de cada pack, a janela em que algum destino de reuso ainda vence a
-   reciclagem fecha na **mediana em 28% da vida** (quartis 22%–35%) no cenário conservador, e em **49%**
-   (quartis 35%–76%) no cenário só fade. Quatro packs nunca abrem janela — três deles são justamente os
+   reciclagem fecha na **mediana em 28% da vida** (quartis 22%–33%) no cenário conservador, e em **49%**
+   (quartis 35%–73%) no cenário só fade. Quatro packs nunca abrem janela — três deles são justamente os
    remontados de 2ª vida, que os gates G5/G6 bloqueiam por incerteza. O processo atual decide em ~100%
    da vida; o valor está entre 28% e 49%.
+   **Revisado em 18/09/2026** ([`PREMISSAS.md`](PREMISSAS.md)): depois de corrigir o preço do produto novo, a janela
+   continua em 28% no cenário conservador e vai a **90%** no cenário só fade. O intervalo real é 28–90%, e o
+   protótipo não o estreita sem dado de degradação de 2ª vida real.
 
 4. **Vale pagar por reparo antes de decidir o destino?** (`pipeline.repair_value`)
    Também tem janela, e ela fecha antes. Para um pack de 10 kWh no cenário conservador, um ganho de
@@ -117,6 +120,8 @@ para a fonte do sistema se estiver offline).
   precisam de fonte. Com as premissas atuais o VPL da reciclagem é **negativo** (−R$ 300 por pack de
   10 kWh): o motor está escolhendo o menor prejuízo, não o maior lucro. O valor de material é o
   número que decide o sinal, e é o primeiro a cotar.
+- **A posição da janela depende do modelo de vida** (28% a 90% no perfil `bev_revisado`), não do preço. Ver
+  [`PREMISSAS.md`](PREMISSAS.md), que também documenta a correção do preço do produto novo e os perfis de produto.
 - **Reparo não é calibrado** — o *uplift* de SOH é varrido, não medido. Não há packs reparados neste
   dataset; a saída é break-even, e calibrá-la é trabalho de F2.
 
