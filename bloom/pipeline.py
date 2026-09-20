@@ -244,14 +244,16 @@ def closed_loop(engine: Engine) -> pd.DataFrame:
 
 
 def reuse_share_grid(engine: Engine, results_cycles: list[tuple[str, int]], logistics=(20, 60, 120, 200),
-                     price_index=(0.6, 0.8, 1.0, 1.2), life_model: str = "conservador") -> pd.DataFrame:
+                     price_index=(0.6, 0.8, 1.0, 1.2), life_model: str = "conservador",
+                     base: Settings | None = None) -> pd.DataFrame:
     """Teste de falsificação #2 do dossiê: o roteador manda o bastante para reuso ou a reciclagem domina?"""
     snaps = [engine.snapshot(p, c)[0] for p, c in results_cycles]
     out = []
     for lg in logistics:
         for price in price_index:
-            s = Settings(economics=replace(Settings().economics, logistics_brl_kwh=lg, new_price_index=price),
-                         n_samples=1000, life_model=life_model)
+            b = base or Settings()
+            s = replace(b, economics=replace(b.economics, logistics_brl_kwh=lg, new_price_index=price),
+                        n_samples=1000, life_model=life_model)
             recs = [route(sn, engine.stress, s)["recomendacao"] for sn in snaps]
             out.append({"frete R$/kWh": lg, "índice de preço do novo": price,
                         "fração para reuso": float(np.mean([r != "reciclagem" for r in recs]))})
@@ -262,7 +264,7 @@ def reuse_share_grid(engine: Engine, results_cycles: list[tuple[str, int]], logi
 # 4. Janela de decisão e valor do reparo
 # --------------------------------------------------------------------------------------------
 def decision_windows(engine: Engine, life_model: str = "conservador", n_points: int = 14,
-                     n_samples: int = 1200) -> pd.DataFrame:
+                     n_samples: int = 1200, base: Settings | None = None) -> pd.DataFrame:
     """Até que ponto da vida um destino de REUSO ainda vence a reciclagem.
 
     Este é o teste que reorganiza o produto. A sensibilidade (`reuse_share_grid`) mostrou que na
@@ -270,7 +272,7 @@ def decision_windows(engine: Engine, life_model: str = "conservador", n_points: 
     ANTES. Aqui medimos, pack a pack, onde fica essa fronteira — a *janela de realocação* — em vez
     de assumir que a decisão acontece quando o pack chega ao pátio.
     """
-    st = Settings(life_model=life_model, n_samples=n_samples)
+    st = replace(base or Settings(), life_model=life_model, n_samples=n_samples)
     fracs = tuple(np.linspace(0.08, 0.97, n_points))
     rows = []
     for pack in sorted(engine.d["pack"].unique()):
@@ -296,7 +298,8 @@ def decision_windows(engine: Engine, life_model: str = "conservador", n_points: 
 
 
 def repair_value(engine: Engine, pack: str, cycle: int, uplift_pp=(0, 2, 4, 6, 8, 10, 15),
-                 life_model: str = "conservador", n_samples: int = 2000) -> pd.DataFrame:
+                 life_model: str = "conservador", n_samples: int = 2000,
+                 base: Settings | None = None) -> pd.DataFrame:
     """Quanto vale pagar para reparar o pack ANTES de decidir o destino.
 
     Reparo e remanufatura não são destinos: são AÇÕES que mudam o ativo, e só depois se decide
@@ -310,7 +313,7 @@ def repair_value(engine: Engine, pack: str, cycle: int, uplift_pp=(0, 2, 4, 6, 8
     O uplift também não é calibrado — é varrido. Calibrá-lo exige packs reparados, que este
     dataset não tem: é o dado que a fase F2 precisa gerar.
     """
-    st = Settings(life_model=life_model, n_samples=n_samples)
+    st = replace(base or Settings(), life_model=life_model, n_samples=n_samples)
     snap, _ = engine.snapshot(pack, cycle)
     base = route(snap, engine.stress, st)
     base_v = max(dd["vpl_medio"] for dd in base["destinos"] if dd["elegivel"])
@@ -328,15 +331,41 @@ def repair_value(engine: Engine, pack: str, cycle: int, uplift_pp=(0, 2, 4, 6, 8
 
 
 def repair_frontier(engine: Engine, fracs=(0.3, 0.6, 0.9), uplift_pp=(0, 4, 8, 15),
-                    life_model: str = "conservador") -> pd.DataFrame:
+                    life_model: str = "conservador", base: Settings | None = None) -> pd.DataFrame:
     """`repair_value` varrido por momento da vida, para toda a frota."""
     rows = []
     for pack in sorted(engine.d["pack"].unique()):
         n = engine.d.loc[engine.d["pack"] == pack, "cycle"].max()
         for f in fracs:
             c = engine.decision_points(pack, (f,))[0]
-            df = repair_value(engine, pack, c, uplift_pp, life_model, n_samples=1200)
+            df = repair_value(engine, pack, c, uplift_pp, life_model, n_samples=1200, base=base)
             df["fracao"] = c / n
             df["momento"] = f"{int(f * 100)}% da vida"
             rows.append(df)
     return pd.concat(rows, ignore_index=True)
+
+
+def remanufacture_breakeven(engine: Engine, settings: Settings, fracs=(0.3, 0.6, 0.9),
+                            reuse_key: str = "original", n_samples: int = 2000) -> pd.DataFrame:
+    """Quanto pode custar remanufaturar o pack antes de a reciclagem voltar a vencer.
+
+    É a forma que o `repair_value` assume no perfil híbrido (`config.profile_settings`), em que o
+    destino de reuso é a REPOSIÇÃO REMANUFATURADA na mesma aplicação. O custo de remanufaturar um
+    pack de 1,3 kWh não tem fonte pública, então não é assumido: é resolvido. `breakeven_brl_pack`
+    é o custo no qual VPL(remanufatura) = VPL(reciclagem) — o teto do que vale pagar pela ação.
+    """
+    st = replace(settings, n_samples=n_samples)
+    rows = []
+    for pack in sorted(engine.d["pack"].unique()):
+        n = engine.d.loc[engine.d["pack"] == pack, "cycle"].max()
+        for f in fracs:
+            c = engine.decision_points(pack, (f,))[0]
+            r = engine.laudo(pack, c, st)
+            dd = {x["destino"]: x for x in r["destinos"]}
+            o, rc = dd[reuse_key], dd["reciclagem"]
+            be = float(o["custos"]) + (o["vpl_medio"] - rc["vpl_medio"]) if o["elegivel"] else None
+            rows.append({"pack": pack, "momento": f"{int(f * 100)}% da vida", "fracao": float(c / n),
+                         "original_elegivel": bool(o["elegivel"]), "vpl_remanufatura": float(o["vpl_medio"]),
+                         "vpl_reciclagem": float(rc["vpl_medio"]), "custos_atuais_brl_pack": float(o["custos"]),
+                         "breakeven_brl_pack": be, "recomendacao": r["recomendacao"]})
+    return pd.DataFrame(rows)

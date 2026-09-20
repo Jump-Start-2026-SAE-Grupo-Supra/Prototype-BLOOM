@@ -240,6 +240,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <div style="display:grid;gap:10px">
         <h1>Laudo BLOOM</h1>
         <p class="lede">Laudo de saúde sem ciclagem completa, gates de segurança que eliminam destinos inseguros e o destino de maior valor para cada bateria — com a incerteza declarada e a conta à vista. Protótipo F0 sobre <span id="ds-summary">dados públicos</span> de íon-lítio (NASA/UCF).</p>
+        <p class="small" id="perfil-note"></p>
       </div>
       <div style="display:grid;gap:6px;justify-items:start">
         <span class="eyebrow">Cenário de vida no destino</span>
@@ -262,6 +263,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     <a href="#laudo-sec">Laudo por pack</a><span class="sep">·</span>
     <a href="#frota">A frota inteira</a><span class="sep">·</span>
     <a href="#janela">A janela</a><span class="sep">·</span>
+    <a href="#corolla">O pack do Corolla</a><span class="sep">·</span>
     <a href="#laco">Fechando o laço</a><span class="sep">·</span>
     <a href="#erro">Erro do modelo</a><span class="sep">·</span>
     <a href="#premissas">Medido vs. suposto</a><span class="sep">·</span>
@@ -520,7 +522,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <p class="small" id="win-note"></p>
       <div class="howto">
         <b>A leitura que interessa</b>
-        <span>O processo atual decide quando o pack volta ao pátio, perto de 100% da vida — depois de a janela ter fechado para quase toda a frota. A distância entre a mediana e essa borda é o espaço em que uma decisão automatizada cria valor. Packs sem janela nenhuma aparecem na contagem à esquerda: três dos quatro são justamente os remontados de 2ª vida, que os gates G5/G6 bloqueiam por incerteza — o motor se recusa a recomendar reuso de um ativo cuja condição ele não consegue provar. Atenção ao que conta como reuso: no cenário conservador, quase todo ele é <i>continuar na tração</i> — só 5 packs chegam a ter recomendação de 2ª vida, e essa janela fecha em ~15% da vida; no só fade, quase todo o reuso é 2ª vida e fecha em ~49%.</span>
+        <span>O processo atual decide quando o pack volta ao pátio, perto de 100% da vida, e a distância entre a mediana e essa borda é o espaço em que uma decisão automatizada cria valor. <b>Quanto espaço, porém, depende muito mais do modelo de vida do que dos preços:</b> <span id="win-span"></span>. O protótipo não consegue estreitar esse intervalo — faltam dados de degradação real em 2ª vida, e o laço fechado mostra a vida real caindo entre os dois cenários na maioria dos pares. A leitura defensável é o intervalo, não a ponta que for mais conveniente. Packs sem janela nenhuma aparecem na contagem à esquerda: <span id="win-nojan"></span> Atenção ao que conta como reuso: “continuar na aplicação de origem” também é reuso, e nos dois cenários ele pesa de forma muito diferente — <span id="win-2nd"></span></span>
       </div>
     </div>
     <div class="two">
@@ -534,6 +536,29 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
         <p><b>O break-even, não o preço.</b> A saída é quanto vale pagar pela intervenção, porque um preço de reparo exigiria uma cotação que não temos. O <i>uplift</i> de SOH também não é calibrado: é varrido de 0 a 15 p.p. Não há packs reparados neste dataset — calibrar o ganho é exatamente o dado que a fase F2 precisa gerar.</p>
         <p><b>Coerente com a janela, não independente dela.</b> O valor do reparo some antes dos 60% da vida pelo mesmo motivo que fecha a janela de reuso: o reparo passa pelo mesmo roteador e pelo mesmo modelo de vida, e depois que a reciclagem vira o destino base um ganho moderado de SOH não muda mais a decisão. É a mesma conclusão vista por outro ângulo, não uma segunda prova.</p>
         <p class="small">Observação honesta: o <b>melhor caso</b> da frota nem sempre acompanha a mediana — há packs que degradam tarde e para os quais reparar vale mais depois. A mediana é a regra; a cauda é o argumento para decidir pack a pack em vez de por regra de calendário.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="corolla" aria-labelledby="h-cor">
+    <div class="section-head">
+      <span class="eyebrow">Outro produto, a mesma conta</span>
+      <h2 id="h-cor">O pack do Corolla híbrido: remanufaturar ou reciclar</h2>
+      <p class="lede">Tudo acima é um pack de <b>elétrico</b> de <span class="mono" id="cor-bev-kwh">10</span> kWh. O insumo imediato da Toyota no Brasil é outro: o pack de níquel-hidreto do Corolla Hybrid, <b><span class="mono" id="cor-kwh">1,3</span> kWh</b> e cerca de 80 kg, cuja peça de reposição sai por <span class="mono" id="cor-preco">—</span>/kWh — cerca de <span class="mono" id="cor-razao">—</span> vezes o R$/kWh de um pack de elétrico. Com um preço desses, a pergunta deixa de ser “segunda vida ou reciclagem” e passa a ser <b>remanufaturar para a mesma aplicação, ou reciclar</b>: não há sistema estacionário de 1,3 kWh para comparar.</p>
+    </div>
+    <div class="two">
+      <div class="panel card">
+        <div class="chart-head">
+          <h3>Quanto pode custar a remanufatura antes de a reciclagem vencer</h3>
+        </div>
+        <div id="cor-chart"></div>
+        <p class="small" id="cor-note"></p>
+        <div class="table-wrap" id="cor-table"></div>
+      </div>
+      <div class="prose">
+        <p><b>Por que custo de equilíbrio, e não lucro.</b> Quanto custa remanufaturar um pack de 1,3 kWh não tem fonte pública. Em vez de arbitrar um número e apresentá-lo como resultado, a conta é invertida: o motor resolve qual seria o <b>custo máximo</b> que ainda deixa a remanufatura à frente da reciclagem. Acima dele, reciclar passa a ser a decisão certa. Barra negativa quer dizer que nem de graça a remanufatura compensa naquele momento.</p>
+        <p><b>O que isto não é.</b> Só a <i>economia</i> é de níquel-hidreto. A dinâmica de envelhecimento continua sendo a dos packs de íon-lítio do dataset, e o piso de SOH de 85% para voltar à tração também. Isto é uma <b>sensibilidade econômica</b>, não uma simulação do pack do Corolla — e o frete, que aqui escala por kWh, subestima o custo de mover 80 kg, o que deixa o custo de equilíbrio otimista.</p>
+        <p class="small">A razão de 5–8× que sai de dividir o preço de venda de um remanufaturado (R$ 8–10 mil) pelo valor de metal contido (R$ 1,2–1,7 mil) é <b>bruta</b>: ignora o custo de remanufatura, o valor do núcleo e a vida que resta. Não deve ser citada como ganho — o que este painel mostra é a conta depois desses descontos.</p>
       </div>
     </div>
   </section>
@@ -638,6 +663,7 @@ const GROUP_LABEL = { regular_cc: "1ª vida · corrente constante", regular_rand
 const DEST = Object.fromEntries(DATA.destinos.map(d => [d.key, d]));
 const DEST_SHORT = { original: "Aplicação de origem", potencia: "2ª vida · potência", energia: "2ª vida · energia",
   backup: "2ª vida · backup", reciclagem: "Reciclagem" };
+const SEGUNDA_VIDA = ["potencia", "energia", "backup"];
 const ORDER = ["original", "potencia", "energia", "backup", "reciclagem"];
 const dcol = k => `var(--d-${k})`;
 const statusClass = s => s === "sem dado" ? "semdado" : s;
@@ -669,7 +695,11 @@ function renderFindings() {
   document.getElementById("ds-cycles").textContent = NF(0).format(DATA.dataset.ciclos);
   document.getElementById("ds-refs").textContent = NF(0).format(DATA.dataset.referencias);
   document.getElementById("howto-kwh").textContent = NF(0).format(DATA.economia.pack_kwh);
-  document.getElementById("gen-date").textContent = `Resultados gerados em ${DATA.gerado_em} por scripts/export_site.py · código do motor em bloom/.`;
+  document.getElementById("perfil-note").innerHTML = DATA.perfil
+    ? `<b>Premissas econômicas:</b> perfil <span class="mono">${esc(DATA.perfil.nome)}</span>. ${esc(DATA.perfil.nota)}`
+    : "";
+  document.getElementById("gen-date").textContent =
+    `Resultados gerados em ${DATA.gerado_em} por scripts/export_site.py --perfil ${DATA.perfil ? DATA.perfil.nome : "?"} · código do motor em bloom/.`;
 }
 
 /* ---------- diagrama do ciclo ---------- */
@@ -781,6 +811,11 @@ function renderEqs() {
 /* ---------- premissas ---------- */
 function renderPremissas() {
   const e = DATA.economia, g = DATA.gates_ref, st = DATA.estresse;
+  const reuso = DATA.destinos.filter(x => x.key !== "reciclagem");
+  const faixa = (f, d = 0) => {
+    const v = reuso.map(f), lo = Math.min(...v), hi = Math.max(...v);
+    return lo === hi ? NF(d).format(lo) : `${NF(d).format(lo)} a ${NF(d).format(hi)}`;
+  };
   const rows = [
     ["SOH e capacidade", "descargas de referência a 2,5 A", "medido", "é o gabarito do dataset; todo o resto é comparado com ele"],
     ["Resistência de um pack novo", `${NF(0).format(g.r_novo * 1000)} mΩ`, "medido", "mediana dos primeiros 25% da vida dos packs de 1ª vida"],
@@ -791,9 +826,10 @@ function renderPremissas() {
     ["Frete de carga perigosa", `R$ ${NF(0).format(e.logistics_brl_kwh)}/kWh`, "literatura", "caso Relectrify/ARENA: US$ 20–40/kWh em rota internacional, aqui adaptado a rota doméstica"],
     ["Valor de material reciclado", `R$ ${NF(0).format(e.material_value_brl_kwh)}/kWh bruto − R$ ${NF(0).format(e.recycling_process_brl_kwh)}/kWh de processo`, "literatura", "Kumar et al. 2023: reciclagem entre −US$ 21,4 e +US$ 21,9/kWh, ou seja, perto de zero"],
     ["Fade calendárico", `${pct(DATA.calendario, 0)} de SOH por ano`, "literatura", "ordem de grandeza usual para célula envelhecida a 25 °C; não medido neste dataset"],
-    ["Preço dos produtos novos", "R$ 600 a 1.800/kWh conforme o destino", "suposto", "ordens de grandeza plausíveis no Brasil; nenhuma cotação foi feita"],
-    ["Fator de preço da 2ª vida", "0,50 a 0,75 do produto novo", "suposto", "desconto que um comprador aceitaria; sem pesquisa de mercado"],
-    ["Reembalagem e integração", "R$ 60 a 450/kWh conforme o destino", "suposto", "inclui BMS, gabinete e mão de obra"],
+    ["Preço dos produtos novos", `R$ ${faixa(x => x.new_product_brl_kwh)}/kWh conforme o destino`, "suposto",
+     `vêm do perfil <b>${esc(DATA.perfil.nome)}</b> (<span class="mono">bloom/config.py</span>); a origem de cada um está em PREMISSAS.md. Preços de imprensa no melhor caso, nunca cotação`],
+    ["Fator de preço da 2ª vida", `${faixa(x => x.price_factor, 2)} do produto novo`, "suposto", "desconto que um comprador aceitaria; sem pesquisa de mercado"],
+    ["Reembalagem e integração", `R$ ${faixa(x => x.repack_brl_kwh)}/kWh conforme o destino`, "suposto", "inclui BMS, gabinete e mão de obra"],
     ["Certificação individual", `R$ ${NF(0).format(e.certification_brl_kwh)}/kWh`, "suposto", "custo atribuído a uma avaliação tipo UL 1974; sem orçamento real"],
     ["Custo do laudo e do ensaio", `R$ ${NF(0).format(e.bloom_test_brl_pack)} e R$ ${NF(0).format(e.reference_test_brl_pack)} por pack`, "suposto", "entram na decisão de ensaiar ou não (equação 11)"],
     ["Taxa de desconto e carregamento", `${pct(e.discount_rate, 0)} a.a. · ${NF(2).format(e.warranty_loading)}×`, "suposto", "arbitrados; afetam diretamente o prêmio de garantia"],
@@ -803,7 +839,9 @@ function renderPremissas() {
     ["Efeito de escala e liquidez", "—", "fora do escopo", "lote mínimo de frete, capacidade do reciclador e demanda real do mercado secundário"],
     ["Envelhecimento de prateleira real", "—", "fora do escopo", "nenhum pack do dataset ficou parado por meses"],
   ];
-  document.getElementById("prem-table").innerHTML = `<h3>Origem de cada número</h3><table>
+  document.getElementById("prem-table").innerHTML = `<h3>Origem de cada número</h3>
+    <p class="small">Perfil em uso: <span class="mono">${esc(DATA.perfil.nome)}</span>. ${esc(DATA.perfil.nota)} Trocar de perfil é <span class="mono">scripts/export_site.py --perfil &lt;nome&gt;</span>; o que cada um muda está em PREMISSAS.md.</p>
+    <table>
     <thead><tr><th>parâmetro</th><th>valor usado</th><th>status</th><th>de onde vem, e o que muda se estiver errado</th></tr></thead>
     <tbody>${rows.map(([p, v, tag, src]) => `<tr><td><b>${esc(p)}</b></td><td class="num">${v}</td>
       <td><span class="tag ${tag.replace(/ /g, "")}">${tag}</span></td><td class="small">${src}</td></tr>`).join("")}</tbody></table>`;
@@ -1079,6 +1117,34 @@ function renderJanela() {
   const cv = cur.filter(d => d.fecha_em !== null && d.fecha_em !== undefined).map(d => d.fecha_em).sort((a, b) => a - b);
   document.getElementById("win-note").textContent =
     `Cenário ${state.scenario === "fade" ? "só fade" : "conservador"}: ${cv.length} dos ${cur.length} packs abrem janela, e ela fecha na mediana em ${NF(0).format(quantile(cv, .5) * 100)}% da vida. Cada ponto é um pack; 14 pontos de decisão por pack, todos fora da amostra.`;
+
+  const medianas = ["conservador", "fade"].map(k => {
+    const v = (DATA.janela[k] || []).filter(d => d.fecha_em != null).map(d => d.fecha_em).sort((a, b) => a - b);
+    return v.length ? quantile(v, .5) : NaN;
+  });
+  document.getElementById("win-span").innerHTML =
+    `a mediana vai de <b>${pct(medianas[0], 0)}</b> da vida no conservador a <b>${pct(medianas[1], 0)}</b> no só fade`;
+
+  const semJanela = cur.filter(d => d.fecha_em === null || d.fecha_em === undefined);
+  const remont = semJanela.filter(d => d.grupo === "second_life").length;
+  document.getElementById("win-nojan").innerHTML = semJanela.length
+    ? `${semJanela.length} no cenário ${state.scenario === "fade" ? "só fade" : "conservador"}${remont ? `, e ${remont} deles são os packs remontados de 2ª vida, que os gates G5/G6 bloqueiam por incerteza — o motor se recusa a recomendar reuso de um ativo cuja condição ele não consegue provar` : ""}.`
+    : "nenhum, neste cenário.";
+  document.getElementById("win-2nd").innerHTML = ["conservador", "fade"].map(k => {
+    const rec = DATA.janela[k] || [];
+    let tracao = 0, segunda = 0; const fecha = [];
+    rec.forEach(d => {
+      const f = (d.trajetoria || []).filter(t => SEGUNDA_VIDA.includes(t.rec)).map(t => t.fracao);
+      segunda += f.length;
+      tracao += (d.trajetoria || []).filter(t => t.rec === "original").length;
+      if (f.length) fecha.push(Math.max(...f));
+    });
+    fecha.sort((a, b) => a - b);
+    const lab = k === "fade" ? "no <b>só fade</b>" : "no <b>conservador</b>";
+    return fecha.length
+      ? `${lab}, ${segunda} dos ${segunda + tracao} pontos de reuso são de 2ª vida e o resto é continuar na tração; ${fecha.length} packs chegam a receber recomendação de 2ª vida, e essa janela fecha na mediana em <b>${NF(0).format(quantile(fecha, .5) * 100)}%</b> da vida`
+      : `${lab}, nenhum pack chega a receber recomendação de 2ª vida`;
+  }).join("; ") + ".";
 }
 
 function renderReparo() {
@@ -1115,11 +1181,79 @@ function renderReparo() {
     : `Barra cheia: mediana dos 26 packs. Marca fina: melhor caso da frota.`;
 }
 
+/* ---------- perfil híbrido: o pack do Corolla ---------- */
+function renderCorolla() {
+  const C = DATA.corolla;
+  const sec = document.getElementById("corolla");
+  if (!C || !C.breakeven || !C.breakeven[state.scenario]) { if (sec) sec.hidden = true; return; }
+  const rows = C.breakeven[state.scenario];
+  const orig = C.destinos.find(d => d.key === "original");
+
+  document.getElementById("cor-kwh").textContent = NF(1).format(C.economia.pack_kwh);
+  document.getElementById("cor-bev-kwh").textContent = NF(0).format(DATA.economia.pack_kwh);
+  document.getElementById("cor-preco").textContent = brl(orig.new_product_brl_kwh);
+  const bev = DATA.destinos.find(d => d.key === "original");
+  document.getElementById("cor-razao").textContent = NF(1).format(orig.new_product_brl_kwh / bev.new_product_brl_kwh);
+
+  const momentos = [...new Set(rows.map(r => r.momento))];
+  const agg = momentos.map(mo => {
+    const g = rows.filter(r => r.momento === mo);
+    const el = g.filter(r => r.original_elegivel);
+    const be = el.map(r => r.breakeven_brl_pack).sort((a, b) => a - b);
+    return { mo, n: g.length, el: el.length, be,
+             med: quantile(be, .5), q1: quantile(be, .25), q3: quantile(be, .75),
+             vplR: quantile(el.map(r => r.vpl_remanufatura).sort((a, b) => a - b), .5),
+             vplC: quantile(g.map(r => r.vpl_reciclagem).sort((a, b) => a - b), .5),
+             rem: g.filter(r => r.recomendacao === "original").length };
+  });
+
+  const W = 520, H = 200, m = { l: 96, r: 76, t: 16, b: 42 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const cand = agg.flatMap(a => [a.q1, a.q3, a.med]).filter(v => isFinite(v));
+  const lo = Math.min(0, ...cand) * 1.08, hi = Math.max(0, ...cand) * 1.08;
+  const x = v => m.l + (v - lo) / (hi - lo || 1) * iw;
+  const bh = ih / agg.length, bar = 20;
+  let out = "";
+  [0, .25, .5, .75, 1].forEach(f => {
+    const v = lo + f * (hi - lo), xx = m.l + f * iw;
+    out += `<line class="gridline" x1="${xx}" x2="${xx}" y1="${m.t - 4}" y2="${m.t + ih + 4}"></line>`;
+    out += `<text x="${xx}" y="${m.t + ih + 20}" text-anchor="middle">${NF(0).format(v)}</text>`;
+  });
+  out += `<line x1="${x(0)}" x2="${x(0)}" y1="${m.t - 4}" y2="${m.t + ih + 4}" style="stroke:var(--ink);stroke-width:1.2"></line>`;
+  out += `<text x="${m.l + iw / 2}" y="${H - 4}" text-anchor="middle">custo de equilíbrio da remanufatura, R$ por pack de ${NF(1).format(C.economia.pack_kwh)} kWh</text>`;
+  agg.forEach((a, i) => {
+    const cy = m.t + bh * i + bh / 2;
+    out += `<text x="${m.l - 10}" y="${cy + 4}" text-anchor="end" style="fill:var(--ink);font-weight:600">${a.mo}</text>`;
+    if (!a.el) {
+      out += `<text x="${x(0) + 8}" y="${cy + 4}" style="fill:var(--faint)">nenhum pack elegível</text>`;
+      return;
+    }
+    const pos = a.med >= 0, x0 = Math.min(x(0), x(a.med)), w = Math.abs(x(a.med) - x(0));
+    out += `<line x1="${x(a.q1)}" x2="${x(a.q3)}" y1="${cy}" y2="${cy}" style="stroke:var(--faint);stroke-width:1.4"></line>`;
+    out += `<rect x="${x0}" y="${cy - bar / 2}" width="${Math.max(w, 1.5)}" height="${bar}" rx="2" style="fill:${pos ? "var(--d-potencia)" : "var(--s-veta)"}"><title>mediana dos ${a.el} packs elegíveis · quartis ${NF(0).format(a.q1)} a ${NF(0).format(a.q3)}</title></rect>`;
+    out += `<text x="${pos ? x(a.med) + 7 : x(a.med) - 7}" y="${cy + 4}" text-anchor="${pos ? "start" : "end"}" style="fill:var(--ink);font-weight:600">${brl(a.med)}</text>`;
+    out += `<text x="${m.l + iw + 12}" y="${cy + 4}">${a.el}/${a.n} elegíveis</text>`;
+  });
+  document.getElementById("cor-chart").innerHTML = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Custo de equilíbrio da remanufatura do pack híbrido, por momento da vida">${out}</svg>`;
+
+  const cenario = state.scenario === "fade" ? "só fade" : "conservador";
+  const positivos = agg.filter(a => a.el && a.med > 0).map(a => a.mo);
+  document.getElementById("cor-note").textContent = positivos.length
+    ? `Cenário ${cenario}. Barra = mediana dos packs elegíveis; traço fino = quartis. A remanufatura ainda paga em ${positivos.join(" e ")}; onde a barra é negativa, reciclar vence mesmo com remanufatura de graça.`
+    : `Cenário ${cenario}. Em nenhum momento da vida a remanufatura fica à frente da reciclagem: o custo de equilíbrio é negativo em todos.`;
+
+  document.getElementById("cor-table").innerHTML = `<table>
+    <thead><tr><th>momento</th><th>elegíveis</th><th>recomenda remanufatura</th><th>VPL remanufatura</th><th>VPL reciclagem</th><th>custo de equilíbrio</th></tr></thead>
+    <tbody>${agg.map(a => `<tr><td><b>${esc(a.mo)}</b></td><td class="num">${a.el}/${a.n}</td><td class="num">${a.rem}/${a.n}</td>
+      <td class="num">${a.el ? brl(a.vplR) : "—"}</td><td class="num">${brl(a.vplC)}</td><td class="num">${a.el ? brl(a.med) : "—"}</td></tr>`).join("")}</tbody></table>
+    <p class="small">Medianas da frota, no cenário ${esc(cenario)}. “Elegíveis” são os packs que passam nos gates e no piso de SOH da reposição; o VPL da reciclagem não depende do momento porque só olha o material contido.</p>`;
+}
+
 function renderAll() {
   document.querySelectorAll(".pack-btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.pack === state.pack));
   const n = DATA.packs[state.pack].decisoes[state.scenario].length;
   if (state.idx >= n) state.idx = 0;
-  renderChart(); renderTabs(); renderLaudo(); renderFleet(); renderJanela(); renderReparo();
+  renderChart(); renderTabs(); renderLaudo(); renderFleet(); renderJanela(); renderReparo(); renderCorolla();
 }
 document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
   state.scenario = b.dataset.sc; save();

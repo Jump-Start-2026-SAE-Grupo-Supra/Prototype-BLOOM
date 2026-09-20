@@ -46,11 +46,14 @@ realocar** a bateria (seção 10) e **quanto vale pagar por reparo** antes de de
 | Battery Passport | continuidade do histórico e procedência | Guan et al. 2025 §3 |
 
 > **O que este protótipo não é.** Não é validação em pack automotivo, não usa Ni-MH, e a camada
-> econômica usa premissas ilustrativas (em `bloom/config.py`). As limitações estão no fim, com números.
+> econômica roda sobre um **perfil de premissas** (`bloom/config.py`), não sobre cotações. O perfil
+> usado aqui é o `bev_revisado` — a revisão de preços de 18/09/2026 registrada em
+> [`PREMISSAS.md`](../PREMISSAS.md). As limitações estão no fim, com números.
 """)
 
 code(r"""
 import sys, warnings
+from dataclasses import replace
 from pathlib import Path
 ROOT = Path.cwd().parent if Path.cwd().name == "notebooks" else Path.cwd()
 sys.path.insert(0, str(ROOT))
@@ -62,10 +65,16 @@ import matplotlib.pyplot as plt
 from IPython.display import Markdown, display
 
 from bloom import pipeline as P
-from bloom.config import Settings, DESTINATIONS, DEST
+from bloom.config import DEST, profile_settings
 from bloom.extract import PACKS, SECOND_LIFE_ORIGIN
 from bloom.health import FEATURE_SETS
 from bloom.router import route, laudo_markdown
+
+# Perfil de produto (bloom/config.py::profile_settings, revisão de premissas de 18/09/2026 — PREMISSAS.md).
+# Só a camada econômica muda entre perfis; saúde, gates e modelo de estresse são os mesmos.
+PERFIL = "bev_revisado"
+ST = profile_settings(PERFIL)
+DESTINATIONS = ST.destinations
 
 pd.set_option("display.precision", 3)
 plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False,
@@ -340,14 +349,24 @@ ax.set(xlabel="corrente média da missão (A)", ylabel="fade de SOH por ciclo eq
 ax.legend(fontsize=6)
 """)
 
+md(r"""
+**Qual conjunto de preços.** As premissas econômicas vêm de um **perfil de produto**
+(`config.profile_settings`). Este notebook roda o perfil `bev_revisado`, a revisão de preços de
+18/09/2026 documentada em [`PREMISSAS.md`](../PREMISSAS.md): pack de reposição de elétrico a
+R$ 1.250/kWh (apurado de R$ 1.167–1.336/kWh) e sistema estacionário instalado a R$ 3.100/kWh (ponto
+médio de R$ 2.700–3.500/kWh). São preços de imprensa, de confiança média — mais defensáveis que os
+R$ 900 e R$ 1.800/kWh do perfil `v0_ilustrativo`, que a primeira versão usava, mas ainda não são
+cotações. Só a camada econômica muda entre perfis: saúde, gates e modelo de estresse são os mesmos.
+""")
+
 code(r"""
 display(Markdown(pd.DataFrame([{
     "destino": x.label, "SOH mín.": x.soh_min, "sai com SOH": x.soh_eol, "R máx. (× novo)": x.r_growth_max,
     "taxa C": x.c_rate, "ciclos/ano": x.cycles_per_year, "produto novo R$/kWh": x.new_product_brl_kwh,
     "fator de preço": x.price_factor, "reembalagem R$/kWh": x.repack_brl_kwh, "garantia (anos)": x.warranty_years}
     for x in DESTINATIONS]).to_markdown(index=False)))
-display(Markdown("**Premissas econômicas (ilustrativas, editáveis em `bloom/config.py`)**"))
-Settings().economics.as_dict()
+display(Markdown(f"**Premissas econômicas do perfil `{PERFIL}`** (editáveis em `bloom/config.py`)"))
+ST.economics.as_dict()
 """)
 
 md(r"""
@@ -359,7 +378,7 @@ Um pack jovem, um pack de primeira vida no fim, e um pack de segunda vida.
 code(r"""
 for pack, frac in [("23", 0.1), ("01", 0.9), ("54", 0.5)]:
     c = engine.decision_points(pack, (frac,))[0]
-    display(Markdown(laudo_markdown(engine.laudo(pack, c))))
+    display(Markdown(laudo_markdown(engine.laudo(pack, c, ST))))
     display(Markdown("---"))
 """)
 
@@ -370,7 +389,7 @@ md(r"""
 code(r"""
 tables = {}
 for lm in ["conservador", "fade"]:
-    res = engine.fleet_decisions(Settings(life_model=lm, n_samples=2000))
+    res = engine.fleet_decisions(replace(ST, life_model=lm, n_samples=2000))
     tables[lm] = P.decisions_table(res)
 
 order = ["original", "potencia", "energia", "backup", "reciclagem"]
@@ -406,15 +425,14 @@ garantia que fecha a conta cresce com a incerteza. **Um laudo melhor é, literal
 """)
 
 code(r"""
-from dataclasses import replace as dc_replace
 pack = "23"; c = engine.decision_points(pack, (0.1,))[0]
 snap, _ = engine.snapshot(pack, c)
 p10, p50, p90 = snap.soh_q
 out = []
 for k in [0.5, 1, 2, 3, 4, 6]:
-    s2 = dc_replace(snap, soh_q=(p50 - (p50 - p10) * k, p50, p50 + (p90 - p50) * k))
+    s2 = replace(snap, soh_q=(p50 - (p50 - p10) * k, p50, p50 + (p90 - p50) * k))
     for lm in ["conservador", "fade"]:
-        res = route(s2, engine.stress, Settings(life_model=lm, n_samples=4000))
+        res = route(s2, engine.stress, replace(ST, life_model=lm, n_samples=4000))
         row = {x["destino"]: x for x in res["destinos"]}["potencia"]
         out.append({"cenário": lm, "largura P10–P90 (p.p.)": (s2.soh_q[2] - s2.soh_q[0]) * 100,
                     "P(falha na garantia)": row["p_falha_garantia"], "prêmio (R$)": row["premio_garantia"],
@@ -476,7 +494,7 @@ fig, axes = plt.subplots(1, 4, figsize=(14, 3.2))
 grids = {}
 for i, (moment, pts) in enumerate([("30% da vida", early), ("aposentadoria (90%)", retire)]):
     for j, lm in enumerate(["conservador", "fade"]):
-        grid = P.reuse_share_grid(engine, pts, life_model=lm)
+        grid = P.reuse_share_grid(engine, pts, life_model=lm, base=ST)
         grids[(moment, lm)] = grid
         piv = grid.pivot(index="frete R$/kWh", columns="índice de preço do novo", values="fração para reuso")
         ax = axes[2 * i + j]
@@ -491,13 +509,19 @@ plt.tight_layout()
 """)
 
 md(r"""
-**Leitura.** Na **aposentadoria** (~90% da vida) a reciclagem domina em quase toda a grade, nos dois cenários —
-a mesma conclusão a que a Relectrify chegou na prática e que Guan et al. (2025) registram ("long payback
-periods", "marketable and profitable business models are absent"). **Aos 30% da vida**, 31–88% dos packs vão
-para reuso: o que mais pesa é o **momento** da decisão e o preço do produto novo que o reuso substitui; o frete
-pesa menos (e só muda o resultado quando o produto novo é caro). Com bateria nova ficando mais barata
-(índice < 1), a janela encolhe. Isso reforça a tese
-de que o produto é a **decisão no momento certo**, não a triagem do que já sobrou.
+**Leitura.** Na **aposentadoria** (~90% da vida) a reciclagem domina no cenário **conservador**: só 5,3% dos
+packs vão para reuso na média da grade (4% a 15% conforme a célula) — a conclusão a que a Relectrify chegou na
+prática e que Guan et al. (2025) registram ("long payback periods", "marketable and profitable business models
+are absent"). No **só fade** isso não se sustenta: a média sobe para 31,3% e chega a 69% na célula mais
+favorável (frete baixo, produto novo caro). É a correção de preços de 18/09/2026 aparecendo — com o sistema
+estacionário a R$ 3.100/kWh, a 2ª vida em energia continua lucrativa até tarde **se** a vida no destino for a
+do cenário otimista.
+
+**Aos 30% da vida**, 42–88% dos packs vão para reuso, nos dois cenários. O que mais pesa é o **momento** da
+decisão e o preço do produto novo que o reuso substitui; o frete pesa menos (e só muda o resultado quando o
+produto novo é caro). Com bateria nova ficando mais barata (índice < 1), a janela encolhe. Isso reforça a tese
+de que o produto é a **decisão no momento certo**, não a triagem do que já sobrou — mas mostra também que
+**quando** essa janela fecha depende do modelo de vida, não do preço. É o que a seção 10 mede.
 """)
 
 md(r"""
@@ -515,7 +539,7 @@ propriamente dita.
 
 code(r"""
 SECOND_LIFE_DEST = ("potencia", "energia", "backup")
-windows = {lm: P.decision_windows(engine, life_model=lm) for lm in ["conservador", "fade"]}
+windows = {lm: P.decision_windows(engine, life_model=lm, base=ST) for lm in ["conservador", "fade"]}
 
 def _close_2nd(traj):
     v = [t["fracao"] for t in traj if t["rec"] in SECOND_LIFE_DEST]
@@ -569,19 +593,28 @@ plt.tight_layout()
 md(r"""
 **Leitura.**
 
-- **A janela existe e fecha cedo.** A última vez em que algum reuso vence a reciclagem fica, na mediana, em
-  **28% da vida** (quartis 22%–33%) no cenário conservador e em **49%** (35%–73%) no só fade. Os três packs
-  remontados (13, 36, 54) não abrem janela em nenhum cenário: os gates G5/G6 os bloqueiam por incerteza. No
-  conservador, o pack 20 (o mais curto, 29 ciclos) também não abre.
-- **No conservador, quase todo esse reuso é continuar na tração.** Dos 93 pontos em que o reuso vence, 84 são
-  "continuar na aplicação de origem"; só **5 packs** chegam a receber recomendação de 2ª vida, e essa janela
-  fecha na mediana em **15%** da vida. No só fade é o contrário: 166 dos 168 pontos de reuso são 2ª vida (quase
-  toda de potência), e a janela de 2ª vida fecha em **49%**.
+- **A janela existe, mas onde ela fecha depende do cenário de vida.** A última vez em que algum reuso vence a
+  reciclagem fica, na mediana, em **28% da vida** (quartis 22%–33%) no cenário conservador e em **90%**
+  (70%–96%) no só fade. Os três packs remontados (13, 36, 54) não abrem janela em nenhum cenário: os gates
+  G5/G6 os bloqueiam por incerteza. No conservador, o pack 20 (o mais curto, 29 ciclos) também não abre.
+- **É o modelo de vida que decide, não o preço.** Com as premissas antigas (`v0_ilustrativo`) a mediana ia de
+  28% a 49%; com os preços corrigidos ela vai de 28% a **90%**. O conservador não se moveu um ponto — ali a
+  janela é determinada pela elegibilidade (piso de SOH) e pela vida até a falha, não pelo valor do produto
+  substituído. O só fade quase dobrou. **Essa dispersão é o maior resultado negativo do protótipo:** o
+  intervalo honesto é 28%–90% da vida, e nada nos dados disponíveis o estreita.
+- **E "reuso" quer dizer coisas diferentes nos dois cenários.** No conservador, dos 96 pontos em que o reuso
+  vence, 92 são "continuar na aplicação de origem"; só **2 packs** chegam a receber recomendação de 2ª vida, e
+  essa janela fecha na mediana em **15%** da vida. No só fade é o contrário: 257 dos 259 pontos de reuso são 2ª
+  vida (quase toda em energia estacionária, o destino cujo preço foi corrigido), e a janela de 2ª vida fecha em
+  **90%**.
 - **Por que os cenários divergem tanto.** O conservador limita a vida no destino pela falha abrupta do ensaio
   acelerado; aos 30% da vida ele já manda 15 dos 26 packs para reciclagem. O laço fechado (seção 8) mostrou que
-  esse cenário costuma subestimar a vida real, e o só fade às vezes superestima. A leitura defensável é um
-  intervalo: **a realocação para 2ª vida vale até algum ponto entre 15% e 49% da vida**, conforme o cenário — em
-  ambos, muito antes da aposentadoria.
+  esse cenário costuma subestimar a vida real e que o só fade às vezes superestima — a vida real fica entre os
+  dois na maioria dos pares. Por isso a saída aqui é um intervalo, não um número. **O que sobrevive aos dois
+  cenários** é a direção: em ambos, decidir na aposentadoria é pior do que decidir antes. **O que não
+  sobrevive** é "a janela fecha aos 28%" — isso é um resultado do cenário conservador, não do protótipo.
+- **O que resolveria.** Escolher entre os cenários exige dado de degradação de bateria real em 2ª vida, na taxa
+  C do destino. Não existe neste dataset, e é a primeira coisa que a fase F2 precisa medir.
 """)
 
 md(r"""
@@ -598,7 +631,7 @@ varrido. Não há packs reparados neste dataset; calibrá-lo é trabalho da F2 (
 """)
 
 code(r"""
-frontier = {lm: P.repair_frontier(engine, life_model=lm) for lm in ["conservador", "fade"]}
+frontier = {lm: P.repair_frontier(engine, life_model=lm, base=ST) for lm in ["conservador", "fade"]}
 rows = []
 for lm, rf in frontier.items():
     for mo, g in rf[rf["uplift_pp"] == 4].groupby("momento"):
@@ -609,7 +642,7 @@ for lm, rf in frontier.items():
                      "reparo muda o destino": f"{int(g['muda_destino'].sum())} de {len(g)}",
                      "destino base = reciclagem": f"{int(base.get('reciclagem', 0))} de {len(g)}"})
 repair_summary = pd.DataFrame(rows).set_index(["cenário", "momento"])
-display(Markdown(f"**Ganho de 4 p.p. de SOH, pack de {Settings().economics.pack_kwh:.0f} kWh**"))
+display(Markdown(f"**Ganho de 4 p.p. de SOH, pack de {ST.economics.pack_kwh:.0f} kWh**"))
 repair_summary.round(0)
 """)
 
@@ -631,16 +664,17 @@ plt.tight_layout()
 md(r"""
 **Leitura.**
 
-- **Conservador:** um ganho de 4 p.p. de SOH vale **R$ 466** na mediana aos 30% da vida (máx. R$ 940; muda o
+- **Conservador:** um ganho de 4 p.p. de SOH vale **R$ 656** na mediana aos 30% da vida (máx. R$ 1.514; muda o
   destino em 9 de 26 packs) e **R$ 0** aos 60% e aos 90%. Mesmo com 15 p.p., o pack mediano aposentado não
-  paga reparo.
-- **Só fade:** o valor dura mais. Com 4 p.p., **R$ 1.228** aos 30%, **R$ 272** aos 60% e R$ 0 aos 90%. Com um
-  ganho grande (15 p.p.), o reparo ainda vale **R$ 2.003** aos 90% e muda o destino de 19 dos 26 packs. Ou seja,
-  "não se paga reparo em pack aposentado" só vale no cenário conservador ou para ganhos pequenos.
+  paga reparo (mediana R$ 0 aos 90%).
+- **Só fade:** o valor não cai. Com 4 p.p., **R$ 1.759** aos 30%, **R$ 1.777** aos 60% e ainda **R$ 1.090** aos
+  90%. Com um ganho grande (15 p.p.), o reparo vale **R$ 5.796** aos 90% e muda o destino de 13 dos 26 packs.
+  Ou seja, "não se paga reparo em pack aposentado" é uma conclusão do cenário conservador, não do motor.
 - **Coerente com a janela, não independente dela.** O reparo passa pelo mesmo roteador e pelo mesmo modelo de
-  vida. Quando a reciclagem já é o destino base (24–25 de 26 packs aos 60–90% no conservador), um ganho
-  moderado de SOH não muda a decisão e o break-even vai a zero por construção. É a mesma conclusão da seção 10
-  vista por outro ângulo, não uma segunda prova.
+  vida, e os dois resultados se movem juntos: no conservador a reciclagem já é o destino base em 24–25 de 26
+  packs aos 60–90%, então um ganho moderado de SOH não muda a decisão e o break-even vai a zero por construção;
+  no só fade ela é o destino base em 7 e 16 de 26, e sobra margem para o reparo comprar. É a mesma conclusão da
+  seção 10 vista por outro ângulo, não uma segunda prova.
 - **O que falta para virar número de negócio:** o *uplift* é varrido, não medido, e o break-even é o teto do que
   vale pagar, não o preço do reparo. Os dois dependem de packs reparados reais (F2).
 """)
@@ -656,7 +690,8 @@ md(r"""
 | **Falha abrupta sem precursor elétrico** | vida residual sai com intervalo largo | sensores de gás/deformação (H1/H2) |
 | **Só três packs remontados** | calibração da 2ª vida é frágil | Zenodo 14859405 (86 células, 1ª e 2ª vida) |
 | **Sem EIS nem sensores de gás** | gates térmicos são proxies | bancada H2 com EIS rápido (Wang et al. 2023: ~6 min) |
-| **Economia com premissas ilustrativas** | preços, frete e regulação brasileiros não têm fonte pública (Dossiê §6) | cotações reais, REN 1.161/2026, UL 1974 |
+| **Economia por perfil de premissas, não por cotação** | os preços do perfil `bev_revisado` vêm de imprensa (confiança média), e frete e regulação brasileiros não têm fonte pública (Dossiê §6; `PREMISSAS.md`) | cotações reais, REN 1.161/2026, UL 1974 |
+| **A posição da janela não é resolvida** (28% a 90% da vida, conforme o modelo de vida) | é a maior incerteza do protótipo: muda a decisão de quando realocar, e nenhum preço a resolve | degradação medida em 2ª vida real, na taxa C do destino |
 | **Offset de termopar por pack** | limite térmico absoluto é inútil neste dataset | calibração de sensor no passaporte |
 | **VPL da reciclagem negativo com as premissas atuais** (−R$ 300 por pack de 10 kWh) | o motor escolhe o menor prejuízo, não o maior lucro; o valor de material decide o sinal | cotar valor de material e processo de reciclagem |
 | **Reparo não calibrado** | o ganho de SOH é varrido, não medido; o break-even é teto, não preço | packs reparados reais (F2) |

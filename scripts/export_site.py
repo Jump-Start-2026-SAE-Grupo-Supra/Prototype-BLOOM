@@ -1,7 +1,14 @@
 """Gera o site estático em docs/ (GitHub Pages) com os resultados embutidos.
 
-    python scripts/export_site.py              # recalcula tudo (~6 min)
-    python scripts/export_site.py --html-only  # só reaplica site/template.html ao JSON existente
+    python scripts/export_site.py                        # perfil bev_revisado (padrão), ~6-10 min
+    python scripts/export_site.py --perfil v0_ilustrativo
+    python scripts/export_site.py --html-only            # só reaplica site/template.html ao JSON existente
+
+O perfil escolhe as premissas econômicas (`bloom.config.profile_settings`). O padrão é
+`bev_revisado`, a correção de preços de 18/09/2026 documentada em PREMISSAS.md, que é a que o
+Business Case cita; `v0_ilustrativo` reproduz a versão anterior da página. Seja qual for o perfil da
+página, a seção do Corolla é sempre calculada com `hev_nimh_corolla`, porque é um produto diferente
+(pack de 1,3 kWh de NiMH) e não uma variante de premissa do mesmo pack.
 
 Saídas:
     docs/data/bloom.json         resultados (também embutidos no HTML)
@@ -14,6 +21,7 @@ import json
 import math
 import sys
 import time
+from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
@@ -24,13 +32,27 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from bloom import pipeline as P  # noqa: E402
-from bloom.config import DESTINATIONS, Settings  # noqa: E402
+from bloom.config import profile_settings  # noqa: E402
 from bloom.extract import PACKS, SECOND_LIFE_ORIGIN  # noqa: E402
 from bloom.health import metrics  # noqa: E402
 
 SCENARIOS = ["conservador", "fade"]
 FRACS = (0.1, 0.3, 0.5, 0.7, 0.9, 0.97)
 OUT_JSON = ROOT / "docs" / "data" / "bloom.json"
+DEFAULT_PROFILE = "bev_revisado"
+PAGE_PROFILES = ("bev_revisado", "v0_ilustrativo")  # perfis que a página inteira aceita
+HEV_PROFILE = "hev_nimh_corolla"
+
+# Texto que a página mostra sobre o perfil escolhido. A conta é a mesma; só as premissas mudam.
+PROFILE_NOTES = {
+    "v0_ilustrativo": "Premissas originais do protótipo (produto novo a R$ 900/kWh, sistema estacionário a "
+                      "R$ 1.800/kWh). Mantido para reproduzir a versão anterior da página.",
+    "bev_revisado": "Premissas corrigidas em 18/09/2026 (PREMISSAS.md): pack de reposição de elétrico a "
+                    "R$ 1.250/kWh, apurado de R$ 1.167–1.336/kWh, e sistema estacionário instalado a "
+                    "R$ 3.100/kWh, ponto médio de R$ 2.700–3.500/kWh. Preços de imprensa, confiança média.",
+    HEV_PROFILE: "Pack de híbrido (Corolla, NiMH, 1,3 kWh): reposição a R$ 13.077/kWh, remanufaturado a 53% "
+                 "do novo, sem destino estacionário. Sensibilidade econômica, não simulação do pack real.",
+}
 
 
 def clean(o):
@@ -78,8 +100,27 @@ def write_html(payload: str) -> None:
     (ROOT / "docs" / ".nojekyll").write_text("", encoding="utf-8")
 
 
-def build_data() -> dict:
+def corolla_section(engine, t0: float) -> dict:
+    """Perfil híbrido: remanufatura contra reciclagem, e o custo de equilíbrio da remanufatura.
+
+    Roda sempre com `hev_nimh_corolla`, independentemente do perfil da página: é outro produto, não
+    outra premissa do mesmo pack. Só a economia é de NiMH — a dinâmica de envelhecimento continua
+    sendo a de íon-lítio do dataset, o que faz desta seção uma sensibilidade, não uma simulação.
+    """
+    st = profile_settings(HEV_PROFILE)
+    out = {"perfil": HEV_PROFILE, "nota": PROFILE_NOTES[HEV_PROFILE],
+           "economia": st.economics.as_dict(), "destinos": [dict(vars(x)) for x in st.destinations],
+           "breakeven": {}}
+    for lm in SCENARIOS:
+        df = P.remanufacture_breakeven(engine, profile_settings(HEV_PROFILE, life_model=lm))
+        out["breakeven"][lm] = df.to_dict(orient="records")
+        print(f"corolla {lm} {time.time() - t0:.0f}s", flush=True)
+    return out
+
+
+def build_data(profile: str = DEFAULT_PROFILE) -> dict:
     t0 = time.time()
+    base = profile_settings(profile)
     d = P.load_cycles()
     engine = P.Engine(d)
     print(f"engine {time.time() - t0:.0f}s", flush=True)
@@ -112,7 +153,7 @@ def build_data() -> dict:
 
     fleet = {}
     for lm in SCENARIOS:
-        res = engine.fleet_decisions(Settings(life_model=lm, n_samples=2000), FRACS)
+        res = engine.fleet_decisions(replace(base, life_model=lm, n_samples=2000), FRACS)
         for r in res:
             packs[r["pack"]]["decisoes"].setdefault(lm, []).append(slim_laudo(r))
         tab = P.decisions_table(res)
@@ -128,7 +169,7 @@ def build_data() -> dict:
     for moment, frac in [("30% da vida", 0.3), ("aposentadoria (90%)", 0.9)]:
         pts = [(p, engine.decision_points(p, (frac,))[0]) for p in sorted(d["pack"].unique())]
         for lm in SCENARIOS:
-            gr = P.reuse_share_grid(engine, pts, life_model=lm)
+            gr = P.reuse_share_grid(engine, pts, life_model=lm, base=base)
             grids.append({"momento": moment, "cenario": lm,
                           "frete": sorted(gr["frete R$/kWh"].unique().tolist()),
                           "indice": sorted(gr["índice de preço do novo"].unique().tolist()),
@@ -147,16 +188,32 @@ def build_data() -> dict:
         "gates_ref": {"deriva_termica_limite": engine.ref.thermal_drift_limit, "r_novo": engine.ref.r_new,
                       "relaxacao_limite": engine.ref.self_discharge_limit, "novidade_limite": engine.ref.novelty_limit},
         "estresse": {"a": st.a, "b": st.b, "sigma": st.sigma, "pontos": st.points.to_dict(orient="records")},
-        "destinos": [dict(vars(x)) for x in DESTINATIONS],
-        "economia": Settings().economics.as_dict(),
-        "calendario": Settings().calendar_fade_per_year,
+        "perfil": {"nome": profile, "nota": PROFILE_NOTES[profile]},
+        "destinos": [dict(vars(x)) for x in base.destinations],
+        "economia": base.economics.as_dict(),
+        "calendario": base.calendar_fade_per_year,
         "packs": packs, "frota": fleet, "grades": grids,
         "laco": P.closed_loop(engine).to_dict(orient="records"),
-        "janela": {lm: P.decision_windows(engine, life_model=lm).to_dict(orient="records")
+        "janela": {lm: P.decision_windows(engine, life_model=lm, base=base).to_dict(orient="records")
                    for lm in SCENARIOS},
-        "reparo": {lm: P.repair_frontier(engine, life_model=lm).to_dict(orient="records")
+        "reparo": {lm: P.repair_frontier(engine, life_model=lm, base=base).to_dict(orient="records")
                    for lm in SCENARIOS},
+        "corolla": corolla_section(engine, t0),
     })
+
+
+def parse_profile(argv: list[str]) -> str:
+    """--perfil <nome> ou --perfil=<nome>; o padrão é DEFAULT_PROFILE."""
+    name = DEFAULT_PROFILE
+    for i, a in enumerate(argv):
+        if a == "--perfil" and i + 1 < len(argv):
+            name = argv[i + 1]
+        elif a.startswith("--perfil="):
+            name = a.split("=", 1)[1]
+    if name not in PAGE_PROFILES:
+        raise SystemExit(f"perfil desconhecido: {name!r} · use um de {', '.join(PAGE_PROFILES)}"
+                         f" ({HEV_PROFILE} é outro produto: sai na seção do Corolla, não na página toda)")
+    return name
 
 
 def main():
@@ -164,8 +221,10 @@ def main():
         write_html(OUT_JSON.read_text(encoding="utf-8"))
         print("html regenerado a partir de", OUT_JSON)
         return
+    profile = parse_profile(sys.argv[1:])
+    print(f"perfil: {profile}", flush=True)
     t0 = time.time()
-    payload = json.dumps(build_data(), ensure_ascii=False, separators=(",", ":"))
+    payload = json.dumps(build_data(profile), ensure_ascii=False, separators=(",", ":"))
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(payload, encoding="utf-8")
     write_html(payload)
