@@ -28,17 +28,24 @@ Os dois primeiros testes de falsificação do dossiê (§5), com dados:
 
 3. **Existe uma janela de realocação mensurável, e onde ela fecha?** (`pipeline.decision_windows`)
    Sim. Varrendo 14 pontos da vida de cada pack, a janela em que algum destino de reuso ainda vence a
-   reciclagem fecha na **mediana em 28% da vida** (quartis 22%–35%) no cenário conservador, e em **49%**
-   (quartis 35%–76%) no cenário só fade. Quatro packs nunca abrem janela — três deles são justamente os
-   remontados de 2ª vida, que os gates G5/G6 bloqueiam por incerteza. O processo atual decide em ~100%
-   da vida; o valor está entre 28% e 49%.
+   reciclagem fecha na **mediana em 28% da vida** (quartis 22%–33%) no cenário conservador, e em **49%**
+   (quartis 35%–73%) no cenário só fade. Os três packs remontados de 2ª vida nunca abrem janela — os gates
+   G5/G6 os bloqueiam por incerteza —, e no conservador o pack 20 (29 ciclos) também não.
+   **Cuidado com o que os 28% medem:** no conservador, 84 dos 93 pontos em que o reuso vence são *continuar
+   na tração*; só 5 packs recebem recomendação de 2ª vida, e essa janela fecha em **15%** da vida. No só fade,
+   quase todo o reuso é 2ª vida (166 de 168 pontos) e a janela de 2ª vida fecha em **49%**. A realocação para
+   2ª vida vale, portanto, até algum ponto entre 15% e 49% da vida, conforme o cenário; o processo atual
+   decide perto de 100%.
 
 4. **Vale pagar por reparo antes de decidir o destino?** (`pipeline.repair_value`)
-   Também tem janela, e ela fecha antes. Para um pack de 10 kWh no cenário conservador, um ganho de
-   4 p.p. de SOH vale, na **mediana, R$ 466** aos 30% da vida (máx. R$ 940; muda o destino em 9 de 26
-   packs) e **R$ 0** aos 60% e aos 90% — não se paga nada para reparar um pack aposentado. O motor
-   chega sozinho ao que a intuição de engenharia diz, por um mecanismo independente do item 3.
-   O *uplift* não é calibrado: é varrido, e a saída é o **break-even**, não um preço inventado.
+   Depende do momento e do cenário. Para um pack de 10 kWh no cenário conservador, um ganho de 4 p.p. de SOH
+   vale, na **mediana, R$ 466** aos 30% da vida (máx. R$ 940; muda o destino em 9 de 26 packs) e **R$ 0** aos
+   60% e aos 90%. No só fade o valor dura mais: R$ 1.228 aos 30%, R$ 272 aos 60% e R$ 0 aos 90% — e com um
+   ganho grande (15 p.p.) o reparo ainda vale R$ 2.003 aos 90%. Não é uma confirmação independente do item 3:
+   usa o mesmo roteador e o mesmo modelo de vida, e quando a reciclagem já é o destino base um ganho moderado
+   não muda a decisão. O *uplift* não é calibrado: é varrido, e a saída é o **break-even**, não um preço.
+
+Os itens 3 e 4 estão no notebook (seções 10 e 11) e no site.
 
 ## Arquitetura
 

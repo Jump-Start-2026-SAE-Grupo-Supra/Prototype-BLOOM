@@ -34,6 +34,9 @@ primeiros testes de falsificação da seção 5:
 1. *Com os dados que o BMS e o carregador já produzem, dá para prever o estado com erro útil para decisão?*
 2. *O roteamento recomendaria segunda vida em quantidade suficiente, ou a reciclagem domina?*
 
+E, a partir da resposta ao segundo, mede duas perguntas derivadas: **até que ponto da vida ainda vale
+realocar** a bateria (seção 10) e **quanto vale pagar por reparo** antes de decidir o destino (seção 11).
+
 | Módulo do dossiê | O que está aqui | Base na literatura |
 |---|---|---|
 | Health Intelligence | SOH P10/P50/P90 fora da amostra, vida residual | Wei et al. 2022; Kumar et al. 2023; Liu et al. 2024 |
@@ -498,7 +501,152 @@ de que o produto é a **decisão no momento certo**, não a triagem do que já s
 """)
 
 md(r"""
-## 10. Limitações — ditas antes da banca
+## 10. A janela de realocação: até quando ainda vale reusar
+
+A seção 9 mostrou que na aposentadoria a reciclagem domina. Se a decisão de destino tem valor, ele está
+**antes**. Aqui medimos, pack a pack, onde fica essa fronteira: o roteador é aplicado em 14 pontos da vida
+de cada pack (de 8% a 97%), sempre fora da amostra, e registramos o **último ponto em que algum destino de
+reuso ainda vence a reciclagem** (`pipeline.decision_windows`).
+
+Um cuidado de leitura: "reuso" inclui **continuar na aplicação de origem** (tração). Por isso separamos duas
+janelas — a de reuso em geral e a de **segunda vida** (potência, energia ou backup), que é a realocação
+propriamente dita.
+""")
+
+code(r"""
+SECOND_LIFE_DEST = ("potencia", "energia", "backup")
+windows = {lm: P.decision_windows(engine, life_model=lm) for lm in ["conservador", "fade"]}
+
+def _close_2nd(traj):
+    v = [t["fracao"] for t in traj if t["rec"] in SECOND_LIFE_DEST]
+    return max(v) if v else np.nan
+
+rows = []
+for lm, w in windows.items():
+    w["fecha_2a_vida"] = w["trajetoria"].apply(_close_2nd)
+    recs = pd.Series([t["rec"] for tr in w["trajetoria"] for t in tr])
+    v, v2 = w["fecha_em"].dropna(), w["fecha_2a_vida"].dropna()
+    rows.append({"cenário": lm,
+                 "packs com janela": f"{len(v)} de {len(w)}",
+                 "fecha · mediana": f"{v.median():.0%}",
+                 "fecha · quartis": f"{v.quantile(.25):.0%}–{v.quantile(.75):.0%}",
+                 "sem janela": ", ".join(w.loc[w["fecha_em"].isna(), "pack"]),
+                 "pontos de reuso: tração": int((recs == "original").sum()),
+                 "pontos de reuso: 2ª vida": int(recs.isin(SECOND_LIFE_DEST).sum()),
+                 "packs com janela de 2ª vida": int(len(v2)),
+                 "janela de 2ª vida · mediana": f"{v2.median():.0%}" if len(v2) else "—"})
+window_summary = pd.DataFrame(rows).set_index("cenário").T
+window_summary
+""")
+
+code(r"""
+fig, axes = plt.subplots(1, 2, figsize=(12, 5.6), sharey=True)
+code_of = {k: i for i, k in enumerate(order)}
+from matplotlib.colors import ListedColormap
+cmap = ListedColormap([colors[k] for k in order])
+# a mesma ordem de packs nos dois painéis (eixo y compartilhado): pela janela do cenário conservador
+pack_order = (windows["conservador"].assign(_f=windows["conservador"]["fecha_em"].fillna(-1))
+              .sort_values(["_f", "pack"])["pack"].tolist())
+for ax, (lm, w) in zip(axes, windows.items()):
+    w = w.set_index("pack").loc[pack_order].reset_index()
+    # packs curtos têm menos de 14 pontos distintos: cada ponto vai para a coluna da fração mais próxima
+    grid = np.linspace(0.08, 0.97, 14)
+    M = np.full((len(w), len(grid)), np.nan)
+    for i, tr in enumerate(w["trajetoria"]):
+        for t in tr:
+            M[i, int(np.abs(grid - t["fracao"]).argmin())] = code_of[t["rec"]]
+    ax.imshow(np.ma.masked_invalid(M), cmap=cmap, vmin=-.5, vmax=len(order) - .5, aspect="auto")
+    ax.grid(False)
+    ax.set_xticks(range(len(grid))[::2], [f"{f:.0%}" for f in grid[::2]])
+    ax.set_yticks(range(len(w)), [f"{p} · {GROUP_LABEL[g].split(' ·')[0]}" for p, g in zip(w["pack"], w["grupo"])], fontsize=6)
+    ax.set(title=f"cenário de vida: {lm}", xlabel="ponto da vida do pack em que o laudo é emitido")
+handles = [plt.Rectangle((0, 0), 1, 1, color=colors[o]) for o in order]
+fig.legend(handles, [DEST[o].label for o in order], loc="lower center", ncol=3, fontsize=7, bbox_to_anchor=(.5, -.06))
+plt.suptitle("Recomendação do roteador ao longo da vida de cada pack (ordem: onde a janela fecha no cenário conservador)", y=1.0)
+plt.tight_layout()
+""")
+
+md(r"""
+**Leitura.**
+
+- **A janela existe e fecha cedo.** A última vez em que algum reuso vence a reciclagem fica, na mediana, em
+  **28% da vida** (quartis 22%–33%) no cenário conservador e em **49%** (35%–73%) no só fade. Os três packs
+  remontados (13, 36, 54) não abrem janela em nenhum cenário: os gates G5/G6 os bloqueiam por incerteza. No
+  conservador, o pack 20 (o mais curto, 29 ciclos) também não abre.
+- **No conservador, quase todo esse reuso é continuar na tração.** Dos 93 pontos em que o reuso vence, 84 são
+  "continuar na aplicação de origem"; só **5 packs** chegam a receber recomendação de 2ª vida, e essa janela
+  fecha na mediana em **15%** da vida. No só fade é o contrário: 166 dos 168 pontos de reuso são 2ª vida (quase
+  toda de potência), e a janela de 2ª vida fecha em **49%**.
+- **Por que os cenários divergem tanto.** O conservador limita a vida no destino pela falha abrupta do ensaio
+  acelerado; aos 30% da vida ele já manda 15 dos 26 packs para reciclagem. O laço fechado (seção 8) mostrou que
+  esse cenário costuma subestimar a vida real, e o só fade às vezes superestima. A leitura defensável é um
+  intervalo: **a realocação para 2ª vida vale até algum ponto entre 15% e 49% da vida**, conforme o cenário — em
+  ambos, muito antes da aposentadoria.
+""")
+
+md(r"""
+## 11. Vale pagar por reparo antes de decidir o destino?
+
+Reparo e remanufatura não são destinos: são **ações** que mudam o ativo, e só depois se decide para onde
+ele vai. Modelamos a ação como um ganho de SOH (*uplift*) aplicado aos três quantis — trocar o módulo pior
+puxa a capacidade do pack, que segue a pior célula (o "efeito barril", Wang et al. 2023, o mesmo mecanismo
+dos packs remontados deste dataset). Os gates continuam valendo: um veto de segurança não se compra com reparo.
+
+A saída é o **break-even** — quanto vale pagar pela intervenção (VPL do melhor destino após o reparo menos
+o VPL sem reparo) —, não um preço de reparo, que exigiria cotação. O *uplift* também não é calibrado: é
+varrido. Não há packs reparados neste dataset; calibrá-lo é trabalho da F2 (`pipeline.repair_frontier`).
+""")
+
+code(r"""
+frontier = {lm: P.repair_frontier(engine, life_model=lm) for lm in ["conservador", "fade"]}
+rows = []
+for lm, rf in frontier.items():
+    for mo, g in rf[rf["uplift_pp"] == 4].groupby("momento"):
+        base = g["destino_base"].value_counts()
+        rows.append({"cenário": lm, "momento": mo,
+                     "break-even mediano (R$)": g["break_even_reparo_brl"].median(),
+                     "break-even máximo (R$)": g["break_even_reparo_brl"].max(),
+                     "reparo muda o destino": f"{int(g['muda_destino'].sum())} de {len(g)}",
+                     "destino base = reciclagem": f"{int(base.get('reciclagem', 0))} de {len(g)}"})
+repair_summary = pd.DataFrame(rows).set_index(["cenário", "momento"])
+display(Markdown(f"**Ganho de 4 p.p. de SOH, pack de {Settings().economics.pack_kwh:.0f} kWh**"))
+repair_summary.round(0)
+""")
+
+code(r"""
+fig, axes = plt.subplots(1, 2, figsize=(11, 3.2), sharey=True)
+mcolor = {"30% da vida": "#2a6f97", "60% da vida": "#e9c46a", "90% da vida": "#6c757d"}
+for ax, (lm, rf) in zip(axes, frontier.items()):
+    for mo, g in rf.groupby("momento"):
+        s = g.groupby("uplift_pp")["break_even_reparo_brl"]
+        ax.plot(s.median().index, s.median().values, "o-", color=mcolor[mo], label=f"{mo} · mediana")
+        ax.fill_between(s.median().index, s.quantile(.25).values, s.quantile(.75).values, color=mcolor[mo], alpha=.15)
+    ax.set(title=f"cenário de vida: {lm}", xlabel="ganho de SOH do reparo (p.p.)")
+axes[0].set_ylabel("break-even do reparo (R$ por pack)")
+axes[0].legend(fontsize=7)
+plt.suptitle("Quanto vale pagar pelo reparo, por momento da vida (faixa = quartis da frota)", y=1.03)
+plt.tight_layout()
+""")
+
+md(r"""
+**Leitura.**
+
+- **Conservador:** um ganho de 4 p.p. de SOH vale **R$ 466** na mediana aos 30% da vida (máx. R$ 940; muda o
+  destino em 9 de 26 packs) e **R$ 0** aos 60% e aos 90%. Mesmo com 15 p.p., o pack mediano aposentado não
+  paga reparo.
+- **Só fade:** o valor dura mais. Com 4 p.p., **R$ 1.228** aos 30%, **R$ 272** aos 60% e R$ 0 aos 90%. Com um
+  ganho grande (15 p.p.), o reparo ainda vale **R$ 2.003** aos 90% e muda o destino de 19 dos 26 packs. Ou seja,
+  "não se paga reparo em pack aposentado" só vale no cenário conservador ou para ganhos pequenos.
+- **Coerente com a janela, não independente dela.** O reparo passa pelo mesmo roteador e pelo mesmo modelo de
+  vida. Quando a reciclagem já é o destino base (24–25 de 26 packs aos 60–90% no conservador), um ganho
+  moderado de SOH não muda a decisão e o break-even vai a zero por construção. É a mesma conclusão da seção 10
+  vista por outro ângulo, não uma segunda prova.
+- **O que falta para virar número de negócio:** o *uplift* é varrido, não medido, e o break-even é o teto do que
+  vale pagar, não o preço do reparo. Os dois dependem de packs reparados reais (F2).
+""")
+
+md(r"""
+## 12. Limitações — ditas antes da banca
 
 | limitação | por que importa | o que faria na F1/F2 |
 |---|---|---|
@@ -510,6 +658,8 @@ md(r"""
 | **Sem EIS nem sensores de gás** | gates térmicos são proxies | bancada H2 com EIS rápido (Wang et al. 2023: ~6 min) |
 | **Economia com premissas ilustrativas** | preços, frete e regulação brasileiros não têm fonte pública (Dossiê §6) | cotações reais, REN 1.161/2026, UL 1974 |
 | **Offset de termopar por pack** | limite térmico absoluto é inútil neste dataset | calibração de sensor no passaporte |
+| **VPL da reciclagem negativo com as premissas atuais** (−R$ 300 por pack de 10 kWh) | o motor escolhe o menor prejuízo, não o maior lucro; o valor de material decide o sinal | cotar valor de material e processo de reciclagem |
+| **Reparo não calibrado** | o ganho de SOH é varrido, não medido; o break-even é teto, não preço | packs reparados reais (F2) |
 
 **O que o protótipo mostra, apesar disso:** o encadeamento inteiro funciona sobre dados reais — laudo
 sem ciclagem completa com erro de ~1,7 p.p. fora da amostra, vetos de segurança com evidência, destino por
